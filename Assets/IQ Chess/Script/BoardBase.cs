@@ -24,5 +24,8 @@ namespace IQChess
 		{
 			if (instance == this) instance = null;
 		}
+
+
+		public abstract bool IsWin(Vector3Int pos1, Vector3Int? pos2 = null);
 	}
 }

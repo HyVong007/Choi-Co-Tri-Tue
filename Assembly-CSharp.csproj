@@ -62,7 +62,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\IQ Chess\Gomoku\Script\Board.cs" />
+    <Compile Include="Assets\IQ Chess\Gomoku\Script\OfflineTurnManager.cs" />
+    <Compile Include="Assets\IQ Chess\Gomoku\Script\Player.cs" />
     <Compile Include="Assets\IQ Chess\Script\BoardBase.cs" />
+    <Compile Include="Assets\IQ Chess\Script\Config.cs" />
+    <Compile Include="Assets\IQ Chess\Script\OfflineTurnManagerBase.cs" />
     <Compile Include="Assets\IQ Chess\Script\PlayerBase.cs" />
     <Compile Include="Assets\IQ Chess\Script\Turnbase Interfaces.cs" />
     <Compile Include="Assets\Rotary Heart\SerializableDictionary\DrawKeyAsPropertyAttribute.cs" />
@@ -275,6 +280,12 @@
     <Reference Include="nunit.framework">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.1.7f1/Editor/Data/UnityExtensions/Unity/TestRunner/net35/unity-custom/nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Photon3Unity3D">
+      <HintPath>D:/UnityProjects/Choi Co Tri Tue/Assets/Photon/PhotonLibs/Photon3Unity3D.dll</HintPath>
+    </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>D:/UnityProjects/Choi Co Tri Tue/Assets/Photon/PhotonLibs/WebSocket/websocket-sharp.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.Editor">
       <HintPath>D:/UnityProjects/Choi Co Tri Tue/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.Editor.dll</HintPath>
     </Reference>
@@ -283,12 +294,6 @@
     </Reference>
     <Reference Include="Unity.Analytics.Tracker">
       <HintPath>D:/UnityProjects/Choi Co Tri Tue/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.Tracker.dll</HintPath>
-    </Reference>
-    <Reference Include="Photon3Unity3D">
-      <HintPath>D:/UnityProjects/Choi Co Tri Tue/Assets/Photon/PhotonLibs/Photon3Unity3D.dll</HintPath>
-    </Reference>
-    <Reference Include="websocket-sharp">
-      <HintPath>D:/UnityProjects/Choi Co Tri Tue/Assets/Photon/PhotonLibs/WebSocket/websocket-sharp.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.1.7f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>

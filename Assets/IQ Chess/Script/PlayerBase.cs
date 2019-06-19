@@ -40,12 +40,14 @@ namespace IQChess
 
 		public abstract void OnTurnBegin(int turn);
 
-		public abstract void OnTurnTimeOver(int turn);
+		public abstract void OnTurnQuit(int turn);
 
-		public abstract void OnTurnQuit(int turn, P player);
+		public abstract void OnTimeOver(int turn, TurnbaseTime turnbaseTime);
 
-		public abstract void OnGameEnd(int turn, P winner);
+		public abstract void OnGameEnd(int turn, EndGameSituation situation, P winner = null);
 
-		public abstract void OnPlayed(int turn, P player, IReadOnlyDictionary<string, object> data);
+		public abstract void OnPlayed(int turn, P player, params Vector3Int[] pos);
+
+		public abstract void OnDrawnRequest(int turn, P player);
 	}
 }

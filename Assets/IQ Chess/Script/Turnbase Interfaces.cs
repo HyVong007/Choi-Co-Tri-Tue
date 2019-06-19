@@ -1,43 +1,55 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine;
 
 
 namespace IQChess
 {
 	public interface ISender
 	{
-		void Play(IReadOnlyDictionary<string, object> data);
+		void Play(params Vector3Int[] data);
 
 		void QuitTurn();
 
-		void Report(TurnbaseReport action, IReadOnlyDictionary<string, object> data = null);
+		void Report(Report action, params object[] data);
+
+		void RequestDrawn();
+
+		void Surrender();
 	}
 
 
 
-	public enum TurnbaseReport
+	public enum Report
 	{
-		READY_TO_PLAY, DONE_TURN_BEGIN, DONE_TIME_OVER, DONE_PLAYER_PLAYED
+		READY_TO_PLAY, DONE_TURN_BEGIN, DONE_TIME_OVER, DONE_PLAYER_PLAYED, DONE_TURN_QUIT, AGREE_DRAWN, DENY_DRAWN
+	}
+
+
+	public enum EndGameSituation
+	{
+		WIN, PLAYER_TIME_OVER, SURRENDER, GAME_TIME_OVER, DRAWN
+	}
+
+
+	public enum TurnbaseTime
+	{
+		TURN_TIME, PLAYER_TIME, GAME_TIME
 	}
 
 
 
-	public interface IListener<I, P> where I : struct where P : PlayerBase<I, P>
+	public interface IListener<in I, in P> where I : struct where P : PlayerBase<I, P>
 	{
 		void OnTurnBegin(int turn);
 
-		/// <param name="player">Người chơi đã hủy turn.</param>
-		void OnTurnQuit(int turn, P player);
+		void OnTurnQuit(int turn);
 
-		void OnTurnTimeOver(int turn);
+		void OnTimeOver(int turn, TurnbaseTime turnbaseTime);
 
-		/// <summary>
-		/// Xảy ra khi có người chơi chiến thắng hoặc có người thoát game hoặc tất cả đồng ý hòa.
-		/// <para>Hoặc đối thủ bị hết thời gian (Game Time Over). </para>
-		/// </summary>
-		/// <param name="turn"></param>
-		/// <param name="winner">Nếu # null: người chơi đã chiến thắng (có thể do đối thủ thoát). Nếu == null: không ai thắng (hòa).</param>
-		void OnGameEnd(int turn, P winner);
+		void OnGameEnd(int turn, EndGameSituation situation, P winner = null);
 
-		void OnPlayed(int turn, P player, IReadOnlyDictionary<string, object> data);
+		void OnPlayed(int turn, P player, params Vector3Int[] pos);
+
+		/// <param name="player">Người chơi đang xin hòa.</param>
+		void OnDrawnRequest(int turn, P player);
 	}
 }
