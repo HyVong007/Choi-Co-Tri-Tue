@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 
 namespace IQChess
 {
-	/// <typeparam name="I">Kiểu của ID</typeparam>
 	public abstract class OfflineTurnManagerBase<I, P, T> : MonoBehaviour, ISender where I : struct where P : PlayerBase<I, P> where T : OfflineTurnManagerBase<I, P, T>
 	{
+		[Serializable]
+		public class Config
+		{
+			public static Config instance;
+			public Dictionary<TurnbaseTime, float> maxTimeSeconds;
+		}
+
+
 		public enum TimeFlow
 		{
 			ELAPSE, REMAIN
@@ -19,20 +27,27 @@ namespace IQChess
 
 		public P currentPlayer { get; protected set; }
 
-		protected IEnumerator<P> nextPlayer;
+		protected IEnumerator<P> nextPlayer = NextPlayer();
 
-		protected IEnumerator<P> NextPlayer()
+		protected static IEnumerator<P> NextPlayer()
 		{
-			throw new NotImplementedException();
+			while (true) foreach (P player in PlayerBase<I, P>.playerDict.Values) yield return player;
 		}
 
-		protected Dictionary<TurnbaseTime, float> maxTime;
+		protected readonly Dictionary<TurnbaseTime, float> maxTime = new Dictionary<TurnbaseTime, float>();
 
 		protected readonly Dictionary<TurnbaseTime, float> startTime = new Dictionary<TurnbaseTime, float>()
 		{
 			[TurnbaseTime.TURN_TIME] = -1f,
 			[TurnbaseTime.PLAYER_TIME] = -1f,
 			[TurnbaseTime.GAME_TIME] = -1f
+		};
+
+		protected readonly Dictionary<TurnbaseTime, bool> isOverProcessed = new Dictionary<TurnbaseTime, bool>()
+		{
+			[TurnbaseTime.TURN_TIME] = false,
+			[TurnbaseTime.PLAYER_TIME] = false,
+			[TurnbaseTime.GAME_TIME] = false
 		};
 
 
@@ -42,13 +57,25 @@ namespace IQChess
 		protected void Awake()
 		{
 			if (instance == null) instance = this as T;
-			else if (instance != this) throw new Exception("Không thể tạo 2 OfflineTurnManager !");
+			else throw new Exception("Không thể tạo nhiều hơn 1 OfflineTurnManagerBase !");
+
+			var c = Config.instance;
+			foreach (var key in startTime.Keys) maxTime[key] = c.maxTimeSeconds[key];
 		}
 
 
 		protected void OnDestroy()
 		{
-			if (instance == this) instance = null;
+			instance = null;
+		}
+
+
+		/// <summary>
+		/// Trò chơi thực sự bắt đầu và người chơi có thể chơi khi bắt đầu turn đầu tiên !
+		/// </summary>
+		protected void BeginTurn()
+		{
+			throw new NotImplementedException();
 		}
 
 
