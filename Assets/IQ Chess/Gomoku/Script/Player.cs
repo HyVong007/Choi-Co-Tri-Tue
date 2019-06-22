@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 
 namespace IQChess.Gomoku
@@ -11,7 +10,6 @@ namespace IQChess.Gomoku
 
 		}
 
-
 		public enum IDType
 		{
 			O, X
@@ -21,29 +19,33 @@ namespace IQChess.Gomoku
 
 		public override void OnTurnBegin(int turn)
 		{
-			throw new System.NotImplementedException();
+			OfflineTurnManager.instance.Report(ReportEvent.DONE_TURN_BEGIN);
 		}
 
 
 		public override void OnTurnQuit(int turn)
 		{
-			throw new System.NotImplementedException();
+			OfflineTurnManager.instance.Report(ReportEvent.DONE_TURN_QUIT);
 		}
 
-		public override void OnTimeOver(int turn, TurnbaseTime turnbaseTime)
+
+		public override void OnTurnTimeOver(int turn)
 		{
-			throw new System.NotImplementedException();
+			OfflineTurnManager.instance.Report(ReportEvent.DONE_TURN_TIME_OVER);
 		}
+
 
 		public override void OnGameEnd(int turn, EndGameSituation situation, Player winner = null)
 		{
 			throw new System.NotImplementedException();
 		}
 
+
 		public override void OnPlayed(int turn, Player player, params Vector3Int[] pos)
 		{
-			throw new System.NotImplementedException();
+			OfflineTurnManager.instance.Report(ReportEvent.DONE_PLAYER_PLAYED, pos);
 		}
+
 
 		public override void OnDrawnRequest(int turn, Player player)
 		{

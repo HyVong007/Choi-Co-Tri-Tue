@@ -7,7 +7,7 @@ namespace IQChess
 {
 	///<summary>Trong scene cần có sẵn 2 instance.</summary>
 	/// <typeparam name="I">Kiểu của ID của người chơi.</typeparam>
-	public abstract class PlayerBase<I, P> : MonoBehaviour, IListener<I, P> where I : struct where P : PlayerBase<I, P>
+	public abstract class PlayerBase<I, P> : MonoBehaviour, IListener<I, P> where I : Enum where P : PlayerBase<I, P>
 	{
 		[Serializable]
 		public class Config
@@ -64,7 +64,7 @@ namespace IQChess
 
 		public abstract void OnTurnQuit(int turn);
 
-		public abstract void OnTimeOver(int turn, TurnbaseTime turnbaseTime);
+		public abstract void OnTurnTimeOver(int turn);
 
 		public abstract void OnGameEnd(int turn, EndGameSituation situation, P winner = null);
 

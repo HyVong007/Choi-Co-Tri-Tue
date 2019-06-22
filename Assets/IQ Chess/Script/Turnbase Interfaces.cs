@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 
 namespace IQChess
@@ -9,7 +10,7 @@ namespace IQChess
 
 		void QuitTurn();
 
-		void Report(Report action, params object[] data);
+		void Report(ReportEvent action, params object[] data);
 
 		void RequestDrawn();
 
@@ -18,32 +19,25 @@ namespace IQChess
 
 
 
-	public enum Report
+	public enum ReportEvent
 	{
-		READY_TO_PLAY, DONE_TURN_BEGIN, DONE_TIME_OVER, DONE_PLAYER_PLAYED, DONE_TURN_QUIT, AGREE_DRAWN, DENY_DRAWN
+		READY_TO_PLAY, DONE_TURN_BEGIN, DONE_TURN_TIME_OVER, DONE_PLAYER_PLAYED, DONE_TURN_QUIT, AGREE_DRAWN, DENY_DRAWN
 	}
 
 
 	public enum EndGameSituation
 	{
-		WIN, PLAYER_TIME_OVER, SURRENDER, GAME_TIME_OVER, DRAWN
+		WIN, PLAYER_TIME_OVER, SURRENDER, DRAWN
 	}
 
 
-	public enum TurnbaseTime
-	{
-		TURN_TIME, PLAYER_TIME, GAME_TIME
-	}
-
-
-
-	public interface IListener<in I, in P> where I : struct where P : PlayerBase<I, P>
+	public interface IListener<I, P> where I : Enum where P : PlayerBase<I, P>
 	{
 		void OnTurnBegin(int turn);
 
 		void OnTurnQuit(int turn);
 
-		void OnTimeOver(int turn, TurnbaseTime turnbaseTime);
+		void OnTurnTimeOver(int turn);
 
 		void OnGameEnd(int turn, EndGameSituation situation, P winner = null);
 
@@ -51,5 +45,26 @@ namespace IQChess
 
 		/// <param name="player">Người chơi đang xin hòa.</param>
 		void OnDrawnRequest(int turn, P player);
+	}
+
+
+
+	public interface ITurnManager<I, P> : ISender where I : Enum where P : PlayerBase<I, P>
+	{
+		int turn { get; }
+
+		P player { get; }
+
+		float elapsedTurnTime { get; }
+
+		float remainTurnTime { get; }
+
+		bool isTurnTimeOver { get; }
+
+		float ElapsePlayerTime(P player);
+
+		float RemainPlayerTime(P player);
+
+		bool IsPlayerTimeOver(P player);
 	}
 }

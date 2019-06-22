@@ -63,9 +63,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\IQ Chess\Gomoku\Script\Board.cs" />
+    <Compile Include="Assets\IQ Chess\Gomoku\Script\GameManager.cs" />
     <Compile Include="Assets\IQ Chess\Gomoku\Script\OfflineTurnManager.cs" />
     <Compile Include="Assets\IQ Chess\Gomoku\Script\Player.cs" />
     <Compile Include="Assets\IQ Chess\Script\BoardBase.cs" />
+    <Compile Include="Assets\IQ Chess\Script\GameManager.cs" />
     <Compile Include="Assets\IQ Chess\Script\OfflineTurnManagerBase.cs" />
     <Compile Include="Assets\IQ Chess\Script\PlayerBase.cs" />
     <Compile Include="Assets\IQ Chess\Script\Turnbase Interfaces.cs" />
@@ -76,7 +78,7 @@
     <Compile Include="Assets\Rotary Heart\SerializableDictionary\References\RequiredReferences.cs" />
     <Compile Include="Assets\Rotary Heart\SerializableDictionary\ReorderableList\ReorderableList.cs" />
     <Compile Include="Assets\Rotary Heart\SerializableDictionary\SerializableDictionaryBase.cs" />
-    <Compile Include="Assets\TEST\Test.cs" />
+    <Compile Include="Assets\TEST\Gomoku\Test.cs" />
     <None Include="Assets\Photon\PhotonUnityNetworking\link.xml" />
     <None Include="Assets\Photon\PhotonLibs\Photon3Unity3D.xml" />
     <None Include="Assets\Photon\PhotonLibs\release_history.txt" />
