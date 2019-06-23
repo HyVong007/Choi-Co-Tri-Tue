@@ -35,19 +35,25 @@ namespace IQChess.Gomoku
 		}
 
 
-		public override void OnGameEnd(int turn, EndGameSituation situation, Player winner = null)
-		{
-			throw new System.NotImplementedException();
-		}
-
-
 		public override void OnPlayed(int turn, Player player, params Vector3Int[] pos)
 		{
 			OfflineTurnManager.instance.Report(ReportEvent.DONE_PLAYER_PLAYED, pos);
 		}
 
 
-		public override void OnDrawnRequest(int turn, Player player)
+		public override void OnGameEnd(int turn, EndGameEvent ev, Player winner = null)
+		{
+			throw new System.NotImplementedException();
+		}
+
+
+		public override void OnRequestReceived(int turn, RequestEvent ev, Player requester)
+		{
+			throw new System.NotImplementedException();
+		}
+
+
+		public override void OnRequestDenied(int turn, RequestEvent ev)
 		{
 			throw new System.NotImplementedException();
 		}

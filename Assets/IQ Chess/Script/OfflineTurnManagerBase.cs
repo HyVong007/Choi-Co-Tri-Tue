@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace IQChess
 {
-	public abstract class OfflineTurnManagerBase<I, P, T, B, C> : MonoBehaviour, ITurnManager<I, P> where I : Enum where P : PlayerBase<I, P> where T : OfflineTurnManagerBase<I, P, T, B, C> where B : BoardBase<C, B>
+	/// <exception cref="TooManyInstanceException"></exception>
+	public abstract class OfflineTurnManagerBase<I, P, T, B, C> : MonoBehaviour, ITurnManager<I, P> where I : Enum where P : PlayerBase<I, P> where T : OfflineTurnManagerBase<I, P, T, B, C> where B : BoardBase<I, C, B> where C : ChessPieceBase<I>
 	{
 		[Serializable]
 		public class Config
@@ -53,7 +54,7 @@ namespace IQChess
 		protected void Awake()
 		{
 			if (instance == null) instance = this as T;
-			else throw new Exception("Không thể tạo quá 1 instance !");
+			else throw new TooManyInstanceException("Không thể tạo quá 1 instance !");
 
 			var c = Config.instance;
 			maxTurnTime = c.maxTurnTimeSeconds; maxPlayerTime = c.maxPlayerTimeSeconds;
@@ -128,7 +129,7 @@ namespace IQChess
 
 			freezeTime = true; P winner = null;
 			foreach (P player in playerDict.Values) if (player != this.player) { winner = player; break; }
-			foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameSituation.SURRENDER, winner);
+			foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameEvent.SURRENDER, winner);
 		}
 
 
@@ -159,8 +160,8 @@ namespace IQChess
 						reportCount[ReportEvent.DONE_PLAYER_PLAYED] = 0;
 						var array = new Vector3Int[data.Length];
 						Array.Copy(data, array, data.Length);
-						if (BoardBase<C, B>.instance.IsWin(array)) foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameSituation.WIN, player);
-						else BeginTurn();
+						//if (BoardBase<C, B>.instance.IsWin(array)) foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameEvent.WIN, player);
+						//else BeginTurn();
 					}
 					break;
 
@@ -190,7 +191,7 @@ namespace IQChess
 					freezeTime = true;
 					P winner = null;
 					foreach (P player in playerDict.Values) if (player != this.player) { winner = player; break; }
-					foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameSituation.PLAYER_TIME_OVER, winner);
+					foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameEvent.PLAYER_TIME_OVER, winner);
 				}
 				else if (isTurnTimeOver)
 				{
@@ -203,6 +204,11 @@ namespace IQChess
 					foreach (IListener<I, P> listener in playerDict.Values) listener.OnTurnTimeOver(_turn);
 				}
 			}
+		}
+
+		public void Request(RequestEvent ev)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

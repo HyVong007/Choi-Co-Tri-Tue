@@ -3,7 +3,7 @@
 
 namespace IQChess.Gomoku
 {
-	public sealed class OfflineTurnManager : OfflineTurnManagerBase<Player.IDType, Player, OfflineTurnManager, Board, Player.IDType?>
+	public sealed class OfflineTurnManager : OfflineTurnManagerBase<Player.IDType, Player, OfflineTurnManager, Board, ChessPiece>
 	{
 		public bool begin;
 
@@ -17,14 +17,6 @@ namespace IQChess.Gomoku
 
 			base.Update();
 		}
-
-
-
-
-
-
-
-
 
 
 		// Điểm bắt đầu chơi (tất cả đối tượng đã sẵn sàng).

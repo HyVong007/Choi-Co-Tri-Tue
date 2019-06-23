@@ -7,6 +7,8 @@ namespace IQChess
 {
 	///<summary>Trong scene cần có sẵn 2 instance.</summary>
 	/// <typeparam name="I">Kiểu của ID của người chơi.</typeparam>
+	/// <exception cref="TooManyInstanceException"></exception>
+	[RequireComponent(typeof(SpriteRenderer))]
 	public abstract class PlayerBase<I, P> : MonoBehaviour, IListener<I, P> where I : Enum where P : PlayerBase<I, P>
 	{
 		[Serializable]
@@ -47,7 +49,7 @@ namespace IQChess
 			{
 				case 0: (ID, type, connection) = c.player1; break;
 				case 1: (ID, type, connection) = c.player2; break;
-				default: throw new Exception("Trong scene đã có sẵn nhiều hơn 2 instance !");
+				default: throw new TooManyInstanceException("Trong scene đã có sẵn nhiều hơn 2 instance !");
 			}
 
 			playerDict[ID] = this as P;
@@ -66,10 +68,12 @@ namespace IQChess
 
 		public abstract void OnTurnTimeOver(int turn);
 
-		public abstract void OnGameEnd(int turn, EndGameSituation situation, P winner = null);
+		public abstract void OnGameEnd(int turn, EndGameEvent ev, P winner = null);
 
 		public abstract void OnPlayed(int turn, P player, params Vector3Int[] pos);
 
-		public abstract void OnDrawnRequest(int turn, P player);
+		public abstract void OnRequestReceived(int turn, RequestEvent ev, P requester);
+
+		public abstract void OnRequestDenied(int turn, RequestEvent ev);
 	}
 }

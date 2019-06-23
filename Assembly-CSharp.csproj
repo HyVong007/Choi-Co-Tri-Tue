@@ -63,10 +63,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\IQ Chess\Gomoku\Script\Board.cs" />
+    <Compile Include="Assets\IQ Chess\Gomoku\Script\ChessPiece.cs" />
     <Compile Include="Assets\IQ Chess\Gomoku\Script\GameManager.cs" />
     <Compile Include="Assets\IQ Chess\Gomoku\Script\OfflineTurnManager.cs" />
     <Compile Include="Assets\IQ Chess\Gomoku\Script\Player.cs" />
     <Compile Include="Assets\IQ Chess\Script\BoardBase.cs" />
+    <Compile Include="Assets\IQ Chess\Script\ChessPieceBase.cs" />
+    <Compile Include="Assets\IQ Chess\Script\Exceptions.cs" />
     <Compile Include="Assets\IQ Chess\Script\GameManager.cs" />
     <Compile Include="Assets\IQ Chess\Script\OfflineTurnManagerBase.cs" />
     <Compile Include="Assets\IQ Chess\Script\PlayerBase.cs" />

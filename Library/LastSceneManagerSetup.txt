@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/IQ Chess/Scene/Test.unity
+- path: Assets/TEST/Gomoku/Test.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
