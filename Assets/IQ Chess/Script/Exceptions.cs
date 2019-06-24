@@ -13,4 +13,9 @@ namespace IQChess
 	public sealed class CannotUndoException : Exception { }
 
 	public sealed class CannotRedoException : Exception { }
+
+	public sealed class CannotCreateInstanceException : Exception
+	{
+		public CannotCreateInstanceException(string message) : base(message) { }
+	}
 }

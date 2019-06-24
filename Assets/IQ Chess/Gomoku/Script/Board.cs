@@ -5,27 +5,21 @@ namespace IQChess.Gomoku
 {
 	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board>
 	{
-		public override void Add(ChessPiece chessPiece, Vector3Int dest)
+		protected override void _Play(ChessPiece chessPiece, bool undo, params Vector3Int[] pos)
 		{
-			throw new System.NotImplementedException();
-		}
+			var p = pos[0];
+			if (!undo)
+			{
+				array[p.x][p.y] = chessPiece;
 
+				// Kiểm tra win ?
 
-		public override void Move(Vector3Int target, Vector3Int dest)
-		{
-			throw new System.NotImplementedException();
-		}
-
-
-		protected override void UndoAdd(ChessPiece chessPiece, Vector3Int dest)
-		{
-			throw new System.NotImplementedException();
-		}
-
-
-		protected override void UndoMove(Vector3Int target, Vector3Int dest)
-		{
-			throw new System.NotImplementedException();
+				//playerVictoryStates[chessPiece.playerID] = true;
+			}
+			else
+			{
+				array[p.x][p.y] = null;
+			}
 		}
 	}
 }

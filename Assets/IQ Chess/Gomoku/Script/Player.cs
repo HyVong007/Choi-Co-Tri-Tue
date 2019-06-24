@@ -5,16 +5,10 @@ namespace IQChess.Gomoku
 {
 	public sealed class Player : PlayerBase<Player.IDType, Player>
 	{
-		public new sealed class Config : PlayerBase<IDType, Player>.Config
-		{
-
-		}
-
 		public enum IDType
 		{
 			O, X
 		}
-
 
 
 		public override void OnTurnBegin(int turn)

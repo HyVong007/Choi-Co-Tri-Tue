@@ -23,5 +23,8 @@ public class Test : MonoBehaviour
 			maxTurnTimeSeconds = 5,
 			maxPlayerTimeSeconds = 12
 		};
+
+
+		int x = Board.MAX_STEP;
 	}
 }

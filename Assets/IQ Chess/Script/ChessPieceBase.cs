@@ -5,43 +5,56 @@ using UnityEngine;
 namespace IQChess
 {
 	/// <summary>
-	/// Phải đặt prefab với tên file là $"{typeof(I)}" vào folder Reource bất kì.
+	/// Phải đặt prefab với tên file là $"{typeof(I)}" vào folder Resource bất kì.
 	/// </summary>
+	/// <exception cref="CannotCreateInstanceException"></exception>
 	/// <typeparam name="I"></typeparam>
 	[RequireComponent(typeof(SpriteRenderer))]
 	public abstract class ChessPieceBase<I> : MonoBehaviour where I : Enum
 	{
+		public class Config
+		{
+			public static Config instance;
+			public I playerID;
+		}
+
 		protected static ChessPieceBase<I> _prefab;
 
 		protected static ChessPieceBase<I> prefab = _prefab ? _prefab : Resources.Load<ChessPieceBase<I>>($"{typeof(I)}");
 
-		public abstract I playerID { get; }
+		public I playerID { get; private set; }
 
 		public abstract byte[] SaveToStream();
 
 		public abstract string SaveToJson();
 
-		protected abstract ChessPieceBase<I> Initialize(byte[] stream);
+		protected abstract ChessPieceBase<I> Load(byte[] stream);
 
-		protected abstract ChessPieceBase<I> Initialize(string json);
-
+		protected abstract ChessPieceBase<I> Load(string json);
 
 		protected static byte[] streamToInitialize;
 		protected static string jsonToInitialize;
+
+
+		//  ======================================================================
+
 
 		protected void Awake()
 		{
 			if (streamToInitialize != null)
 			{
-				Initialize(streamToInitialize); streamToInitialize = null;
+				Load(streamToInitialize); streamToInitialize = null;
 			}
 			else if (jsonToInitialize != "")
 			{
-				Initialize(jsonToInitialize); jsonToInitialize = "";
+				Load(jsonToInitialize); jsonToInitialize = "";
 			}
+			else if (Config.instance != null)
+			{
+
+			}
+			else throw new CannotCreateInstanceException("Không thể tạo instance vì thiếu config hoặc json hoặc stream.");
 		}
-
-
 
 
 		/// <exception cref="CannotLoadException"></exception>

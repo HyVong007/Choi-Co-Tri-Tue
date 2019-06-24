@@ -11,8 +11,7 @@ namespace IQChess
 	[RequireComponent(typeof(SpriteRenderer))]
 	public abstract class BoardBase<I, C, B> : MonoBehaviour where I : Enum where C : ChessPieceBase<I> where B : BoardBase<I, C, B>
 	{
-		public const int MAX_UNDO_REDO_STEP = 100;
-
+		public const int MAX_STEP = 100;
 
 		[Serializable]
 		public class Config
@@ -51,42 +50,100 @@ namespace IQChess
 
 
 		[Serializable]
-		protected struct DataAdd
+		protected struct ActionData
 		{
+			public I playerID;
+			public int turn;
 			public C chessPiece;
-			public Vector3Int dest;
-		}
-
-		[Serializable]
-		protected struct DataMove
-		{
-			public Vector3Int target, dest;
-			public C deadChessPice;
+			public Vector3Int[] pos;
 		}
 
 
 		public bool IsWin(I playerID) => playerVictoryStates[playerID];
 
-		public abstract void Add(C chessPiece, Vector3Int dest);
+		protected abstract void _Play(C chessPiece, bool undo, params Vector3Int[] pos);
+		protected readonly LinkedList<ActionData> recentActions = new LinkedList<ActionData>();
+		protected readonly LinkedList<ActionData> undoneActions = new LinkedList<ActionData>();
 
-		public abstract void Move(Vector3Int target, Vector3Int dest);
 
-		protected abstract void UndoAdd(C chessPiece, Vector3Int dest);
+		private int turn;
 
-		protected abstract void UndoMove(Vector3Int target, Vector3Int dest);
-
-		protected readonly LinkedList<ValueType> recentActions = new LinkedList<ValueType>();
-
-		/// <exception cref="CannotUndoException"></exception>
-		public void Undo(I playerID)
+		public void Play(I playerID, C chessPiece, params Vector3Int[] pos)
 		{
+			_Play(chessPiece, undo: false, pos);
+			recentActions.AddLast(new ActionData()
+			{
+				playerID = playerID,
+				turn = turn++,
+				chessPiece = chessPiece,
+				pos = pos,
+			});
 
+			if (recentActions.Count > MAX_STEP)
+			{
+				if (recentActions.First.Value.turn == undoneActions.Last.Value.turn) undoneActions.RemoveLast();
+				recentActions.RemoveFirst();
+			}
 		}
 
-		/// <exception cref="CannotRedoException"></exception>
+
+		public bool CanUndo(I playerID)
+		{
+			var node = recentActions.Last;
+			while (node != null)
+			{
+				if (node.Value.playerID.CompareTo(playerID) == 0) return true;
+				node = node.Previous;
+			}
+			return false;
+		}
+
+
+		public bool CanRedo(I playerID)
+		{
+			foreach (var data in undoneActions) if (data.playerID.CompareTo(playerID) == 0) return true;
+			return false;
+		}
+
+
+		public void Undo(I playerID)
+		{
+			I id;
+			LinkedListNode<ActionData> node;
+			do
+			{
+				node = recentActions.Last;
+				recentActions.RemoveLast();
+				var value = node.Value;
+				id = value.playerID;
+				_Play(value.chessPiece, undo: true, value.pos);
+				undoneActions.AddFirst(node);
+				if (undoneActions.Count > MAX_STEP) undoneActions.RemoveLast();
+			} while (id.CompareTo(playerID) != 0);
+		}
+
+
 		public void Redo(I playerID)
 		{
+			I id;
+			do
+			{
+				var nodeUndo = undoneActions.First;
+				undoneActions.RemoveFirst();
+				var v = nodeUndo.Value;
+				_Play(v.chessPiece, undo: false, v.pos);
+				id = v.playerID;
+				int order = nodeUndo.Value.turn - 1;
+				while (recentActions.Count != 0)
+				{
+					if (recentActions.Last.Value.turn == order) break;
+					var value = recentActions.Last.Value;
+					_Play(value.chessPiece, undo: true, value.pos);
+					recentActions.RemoveLast();
+				}
 
+				recentActions.AddLast(nodeUndo);
+			} while (id.CompareTo(playerID) != 0);
 		}
 
 
