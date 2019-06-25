@@ -36,6 +36,8 @@ namespace IQChess
 			var c = Config.instance;
 			array = new C[c.arraySize.x][];
 			for (int i = 0; i < array.Length; ++i) array[i] = new C[c.arraySize.y];
+			Conversion.origin = new Vector3(-array.Length / 2f, -array[0].Length / 2f, 0);
+			Conversion.arraySize = c.arraySize;
 			foreach (I id in Enum.GetValues(typeof(I))) playerVictoryStates[id] = false;
 		}
 
@@ -48,6 +50,8 @@ namespace IQChess
 
 		//  =====================  Chức năng chính của bàn cờ  ==============================
 
+
+		public C this[int x, int y] => array[x][y];
 
 		[Serializable]
 		protected struct ActionData
@@ -81,7 +85,7 @@ namespace IQChess
 
 			if (recentActions.Count > MAX_STEP)
 			{
-				if (recentActions.First.Value.turn == undoneActions.Last.Value.turn) undoneActions.RemoveLast();
+				if (recentActions.First.Value.turn == undoneActions.Last?.Value.turn) undoneActions.RemoveLast();
 				recentActions.RemoveFirst();
 			}
 		}
@@ -112,6 +116,7 @@ namespace IQChess
 			LinkedListNode<ActionData> node;
 			do
 			{
+				--turn;
 				node = recentActions.Last;
 				recentActions.RemoveLast();
 				var value = node.Value;
@@ -171,5 +176,28 @@ namespace IQChess
 		{
 			throw new NotImplementedException();
 		}
+	}
+
+
+
+	public static class Conversion
+	{
+		internal static Vector3 origin;
+		internal static Vector2Int arraySize;
+
+
+		public static Vector3 ArrayToWorld(this Vector3Int a) { throw new NotImplementedException(); }
+
+		public static Vector3Int WorldToArray(this Vector3 w) => Vector3Int.FloorToInt(w - origin);
+
+		public static Vector3Int ScreenToArray(this Vector3Int s) => s.ScreenToWorld().WorldToArray();
+
+		public static Vector3Int ArrayToScreen(this Vector3Int a) => a.ArrayToWorld().WorldToScreen();
+
+		public static Vector3 ScreenToWorld(this Vector3Int s) => Vector3Int.FloorToInt(Camera.main.ScreenToWorldPoint(s));
+
+		public static Vector3Int WorldToScreen(this Vector3 w) => Vector3Int.FloorToInt(Camera.main.WorldToScreenPoint(w));
+
+		public static bool IsValidArray(this Vector3Int a) => 0 <= a.x && a.x < arraySize.x && 0 <= a.y && a.y < arraySize.y;
 	}
 }

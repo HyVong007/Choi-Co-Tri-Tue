@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 
-namespace IQChess.Gomoku
+namespace IQChess.ChineseChess
 {
 	/// <summary>
 	/// Nên chạy sau cùng nhất, khi tất cả game object đã sẵn sàng để chơi.

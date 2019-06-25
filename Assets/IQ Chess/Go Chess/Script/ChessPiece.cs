@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 
 
-namespace IQChess.Gomoku
+namespace IQChess.GoChess
 {
 	public sealed class ChessPiece : ChessPieceBase<Player.IDType>
 	{
+		public int airHole;
+
+
 		public override string SaveToJson()
 		{
 			throw new System.NotImplementedException();

@@ -1,10 +1,17 @@
 ﻿using UnityEngine;
 
 
-namespace IQChess.Gomoku
+namespace IQChess.KingChess
 {
 	public sealed class ChessPiece : ChessPieceBase<Player.IDType>
 	{
+		public enum Name
+		{
+			KING, QUEEN, VEHICLE, ELEPHANT, HORSE, SOLDIER
+		}
+
+
+
 		public override string SaveToJson()
 		{
 			throw new System.NotImplementedException();

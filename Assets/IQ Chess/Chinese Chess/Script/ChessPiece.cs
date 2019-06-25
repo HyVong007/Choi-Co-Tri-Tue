@@ -1,10 +1,20 @@
 ﻿using UnityEngine;
 
 
-namespace IQChess.Gomoku
+namespace IQChess.ChineseChess
 {
 	public sealed class ChessPiece : ChessPieceBase<Player.IDType>
 	{
+		public enum Name
+		{
+			GENERAL, GUARD, ELEPHANT, HORSE, VEHICLE, CANNON, SOLDIER
+		}
+		public new Name name;
+
+
+		//  ==========================================================================
+
+
 		public override string SaveToJson()
 		{
 			throw new System.NotImplementedException();
@@ -29,7 +39,7 @@ namespace IQChess.Gomoku
 		}
 
 
-		protected override void Load(Config c)
+		protected override void Load(ChessPieceBase<Player.IDType>.Config c)
 		{
 			throw new System.NotImplementedException();
 		}

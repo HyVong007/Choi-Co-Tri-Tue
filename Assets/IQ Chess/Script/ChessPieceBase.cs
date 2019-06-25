@@ -18,11 +18,15 @@ namespace IQChess
 			public I playerID;
 		}
 
-		protected static ChessPieceBase<I> _prefab;
+		protected static ChessPieceBase<I> prefab;
 
-		protected static ChessPieceBase<I> prefab = _prefab ? _prefab : Resources.Load<ChessPieceBase<I>>($"{typeof(I)}");
+		//protected static ChessPieceBase<I> prefab = _prefab ? _prefab : Resources.Load<ChessPieceBase<I>>($"{typeof(I)}");
 
-		public I playerID { get; private set; }
+		public I playerID;
+
+
+		//  =====================================================================
+
 
 		public abstract byte[] SaveToStream();
 
@@ -32,8 +36,10 @@ namespace IQChess
 
 		protected abstract ChessPieceBase<I> Load(string json);
 
+		protected abstract void Load(Config c);
+
 		protected static byte[] streamToInitialize;
-		protected static string jsonToInitialize;
+		protected static string jsonToInitialize = "";
 
 
 		//  ======================================================================
@@ -51,9 +57,9 @@ namespace IQChess
 			}
 			else if (Config.instance != null)
 			{
-
+				playerID = Config.instance.playerID;
+				Load(Config.instance);
 			}
-			else throw new CannotCreateInstanceException("Không thể tạo instance vì thiếu config hoặc json hoặc stream.");
 		}
 
 
