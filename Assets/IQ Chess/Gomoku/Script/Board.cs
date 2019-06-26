@@ -14,7 +14,7 @@ namespace IQChess.Gomoku
 		};
 
 
-		protected override void _Play(ChessPiece chessPiece, bool undo, params Vector3Int[] pos)
+		protected override object _Play(ChessPiece chessPiece, bool undo, params Vector3Int[] pos)
 		{
 			var p = pos[0];
 			if (!undo)
@@ -41,6 +41,7 @@ namespace IQChess.Gomoku
 				}
 			}
 			else array[p.x][p.y] = null;
+			return null;
 		}
 	}
 }

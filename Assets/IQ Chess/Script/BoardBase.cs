@@ -60,12 +60,13 @@ namespace IQChess
 			public int turn;
 			public C chessPiece;
 			public Vector3Int[] pos;
+			public object customData;
 		}
 
 
 		public bool IsWin(I playerID) => playerVictoryStates[playerID];
 
-		protected abstract void _Play(C chessPiece, bool undo, params Vector3Int[] pos);
+		protected abstract object _Play(C chessPiece, bool undo, params Vector3Int[] pos);
 		protected readonly LinkedList<ActionData> recentActions = new LinkedList<ActionData>();
 		protected readonly LinkedList<ActionData> undoneActions = new LinkedList<ActionData>();
 
@@ -74,13 +75,13 @@ namespace IQChess
 
 		public void Play(I playerID, C chessPiece, params Vector3Int[] pos)
 		{
-			_Play(chessPiece, undo: false, pos);
 			recentActions.AddLast(new ActionData()
 			{
 				playerID = playerID,
 				turn = turn++,
 				chessPiece = chessPiece,
 				pos = pos,
+				customData = _Play(chessPiece, undo: false, pos)
 			});
 
 			if (recentActions.Count > MAX_STEP)

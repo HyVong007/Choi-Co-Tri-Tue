@@ -32,9 +32,9 @@ namespace IQChess.ChineseChess
 
 
 
-		protected override void _Play(ChessPiece chessPiece, bool undo, params Vector3Int[] pos)
+		protected override object _Play(ChessPiece chessPiece, bool undo, params Vector3Int[] pos)
 		{
-
+			throw new NotImplementedException();
 		}
 
 

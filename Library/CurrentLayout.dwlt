@@ -136,7 +136,7 @@ MonoBehaviour:
   m_MinSize: {x: 609, y: 494}
   m_MaxSize: {x: 18004, y: 14044}
   vertical: 1
-  controlID: 15
+  controlID: 85
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -162,7 +162,7 @@ MonoBehaviour:
   m_MinSize: {x: 609, y: 494}
   m_MaxSize: {x: 18004, y: 14044}
   vertical: 0
-  controlID: 16
+  controlID: 86
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -187,7 +187,7 @@ MonoBehaviour:
   m_MinSize: {x: 232, y: 494}
   m_MaxSize: {x: 10002, y: 14044}
   vertical: 1
-  controlID: 84
+  controlID: 17
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -257,7 +257,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 334
     y: 0
-    width: 282
+    width: 460
     height: 588
   m_MinSize: {x: 275, y: 50}
   m_MaxSize: {x: 4000, y: 4000}
@@ -281,9 +281,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 616
+    x: 794
     y: 0
-    width: 664
+    width: 486
     height: 588
   m_MinSize: {x: 102, y: 122}
   m_MaxSize: {x: 4002, y: 4022}
@@ -533,20 +533,20 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/IQ Chess/Gomoku/Texture
+    - Assets/IQ Chess/Chinese Chess/Script
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/IQ Chess/Gomoku/Texture
+  - Assets/IQ Chess/Chinese Chess/Script
   m_LastFoldersGridSize: 16
   m_LastProjectPath: D:\UnityProjects\Choi Co Tri Tue
   m_LockTracker:
     m_IsLocked: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 207}
-    m_SelectedIDs: 92290000
-    m_LastClickedID: 10642
-    m_ExpandedIDs: 0000000082290000c62a00000e2b0000582c00009e2c0000a02c00009a2d00009c2d00009e2d0000a02d000000ca9a3b
+    scrollPos: {x: 0, y: 91}
+    m_SelectedIDs: 502b0000
+    m_LastClickedID: 11088
+    m_ExpandedIDs: 0000000082290000e4290000c62a00000e2b0000582c00009e2c0000a02c00009a2d00009c2d00009e2d0000a02d000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -574,7 +574,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000822900000e2b0000582c0000a02c00009a2d00009c2d00009e2d0000a02d0000
+    m_ExpandedIDs: 0000000082290000c62a00000e2b0000582c00009e2c0000a02c00009a2d00009c2d00009e2d0000a02d0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -652,7 +652,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 334
     y: 72.66667
-    width: 280
+    width: 458
     height: 569
   m_ViewDataDictionary: {fileID: 0}
   m_OpenAddComponentMenu: 0
@@ -686,9 +686,9 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 616
+    x: 794
     y: 72.66667
-    width: 662
+    width: 484
     height: 569
   m_ViewDataDictionary: {fileID: 0}
   m_ShowContextualTools: 0

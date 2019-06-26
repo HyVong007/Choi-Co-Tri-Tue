@@ -18,10 +18,6 @@ namespace IQChess
 			public I playerID;
 		}
 
-		protected static ChessPieceBase<I> prefab;
-
-		//protected static ChessPieceBase<I> prefab = _prefab ? _prefab : Resources.Load<ChessPieceBase<I>>($"{typeof(I)}");
-
 		public I playerID;
 
 
@@ -66,24 +62,28 @@ namespace IQChess
 		/// <exception cref="CannotLoadException"></exception>
 		public static C Load<C>(byte[] stream) where C : ChessPieceBase<I>
 		{
-			streamToInitialize = stream;
+			/*streamToInitialize = stream;
 			try
 			{
 				return Instantiate(prefab) as C;
 			}
-			catch (Exception) { throw new CannotLoadException(); }
+			catch (Exception) { throw new CannotLoadException(); }*/
+
+			throw new NotImplementedException();
 		}
 
 
 		/// <exception cref="CannotLoadException"></exception>
 		public static C Load<C>(string json) where C : ChessPieceBase<I>
 		{
-			jsonToInitialize = json;
+			/*jsonToInitialize = json;
 			try
 			{
 				return Instantiate(prefab) as C;
 			}
-			catch (Exception) { throw new CannotLoadException(); }
+			catch (Exception) { throw new CannotLoadException(); }*/
+
+			throw new NotImplementedException();
 		}
 	}
 }
