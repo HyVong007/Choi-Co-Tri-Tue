@@ -9,7 +9,7 @@ namespace IQChess
 	///<summary>Trong scene cần có sẵn 1 instance.</summary>
 	/// <exception cref="TooManyInstanceException"></exception>
 	[RequireComponent(typeof(SpriteRenderer))]
-	public abstract class BoardBase<I, C, B> : MonoBehaviour where I : Enum where C : ChessPieceBase<I> where B : BoardBase<I, C, B>
+	public abstract class BoardBase<I, C, B, P> : MonoBehaviour where I : Enum where C : ChessPieceBase<I> where B : BoardBase<I, C, B, P> where P : PlayerBase<I, P>
 	{
 		public const int MAX_STEP = 100;
 
@@ -56,9 +56,8 @@ namespace IQChess
 		[Serializable]
 		protected struct ActionData
 		{
-			public I playerID;
 			public int turn;
-			public C chessPiece;
+			public I playerID;
 			public Vector3Int[] pos;
 			public object customData;
 		}
@@ -66,24 +65,18 @@ namespace IQChess
 
 		public bool IsWin(I playerID) => playerVictoryStates[playerID];
 
-		protected abstract object _Play(C chessPiece, bool undo, params Vector3Int[] pos);
+		protected abstract void _Play(ref ActionData data, bool undo = false);
 		protected readonly LinkedList<ActionData> recentActions = new LinkedList<ActionData>();
 		protected readonly LinkedList<ActionData> undoneActions = new LinkedList<ActionData>();
 
 
 		private int turn;
 
-		public void Play(I playerID, C chessPiece, params Vector3Int[] pos)
+		public void Play(I playerID, params Vector3Int[] pos)
 		{
-			recentActions.AddLast(new ActionData()
-			{
-				playerID = playerID,
-				turn = turn++,
-				chessPiece = chessPiece,
-				pos = pos,
-				customData = _Play(chessPiece, undo: false, pos)
-			});
-
+			var data = new ActionData() { turn = turn++, playerID = playerID, pos = pos };
+			_Play(ref data);
+			recentActions.AddLast(data);
 			if (recentActions.Count > MAX_STEP)
 			{
 				if (recentActions.First.Value.turn == undoneActions.Last?.Value.turn) undoneActions.RemoveLast();
@@ -122,7 +115,7 @@ namespace IQChess
 				recentActions.RemoveLast();
 				var value = node.Value;
 				id = value.playerID;
-				_Play(value.chessPiece, undo: true, value.pos);
+				_Play(ref value, undo: true);
 				undoneActions.AddFirst(node);
 				if (undoneActions.Count > MAX_STEP) undoneActions.RemoveLast();
 			} while (id.CompareTo(playerID) != 0);
@@ -137,20 +130,32 @@ namespace IQChess
 				var nodeUndo = undoneActions.First;
 				undoneActions.RemoveFirst();
 				var v = nodeUndo.Value;
-				_Play(v.chessPiece, undo: false, v.pos);
 				id = v.playerID;
+				_Play(ref v);
 				int order = nodeUndo.Value.turn - 1;
 				while (recentActions.Count != 0)
 				{
 					if (recentActions.Last.Value.turn == order) break;
 					var value = recentActions.Last.Value;
-					_Play(value.chessPiece, undo: true, value.pos);
+					_Play(ref value, undo: true);
 					recentActions.RemoveLast();
 				}
 
 				recentActions.AddLast(nodeUndo);
 			} while (id.CompareTo(playerID) != 0);
 		}
+
+
+		/// <summary>
+		/// Sự kiện khi game kết thúc: có người thắng hay Hòa.
+		/// parameter: người chơi thắng. Nếu null: Hòa.
+		/// </summary>
+		public static event Action<P> endGame
+		{
+			add { _endGame += value; }
+			remove { _endGame -= value; }
+		}
+		protected static Action<P> _endGame;
 
 
 		public string SaveToJson()
@@ -166,14 +171,14 @@ namespace IQChess
 
 
 		/// <exception cref="CannotLoadException"></exception>
-		public static BoardBase<I, C, B> Load(string json)
+		public static BoardBase<I, C, B, P> Load(string json)
 		{
 			throw new NotImplementedException();
 		}
 
 
 		/// <exception cref="CannotLoadException"></exception>
-		public static BoardBase<I, C, B> Load(byte[] stream)
+		public static BoardBase<I, C, B, P> Load(byte[] stream)
 		{
 			throw new NotImplementedException();
 		}

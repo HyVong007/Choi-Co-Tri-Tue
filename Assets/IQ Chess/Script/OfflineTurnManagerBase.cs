@@ -6,7 +6,7 @@ using UnityEngine;
 namespace IQChess
 {
 	/// <exception cref="TooManyInstanceException"></exception>
-	public abstract class OfflineTurnManagerBase<I, P, T, B, C> : MonoBehaviour, ITurnManager<I, P> where I : Enum where P : PlayerBase<I, P> where T : OfflineTurnManagerBase<I, P, T, B, C> where B : BoardBase<I, C, B> where C : ChessPieceBase<I>
+	public abstract class OfflineTurnManagerBase<I, P, T, B, C> : MonoBehaviour, ITurnManager<I, P> where I : Enum where P : PlayerBase<I, P> where T : OfflineTurnManagerBase<I, P, T, B, C> where B : BoardBase<I, C, B, P> where C : ChessPieceBase<I>
 	{
 		[Serializable]
 		public class Config

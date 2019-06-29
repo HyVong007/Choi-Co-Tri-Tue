@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace IQChess.KingChess
 {
-	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board>
+	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board, Player>
 	{
 		[Serializable] public sealed class ChessPieceList { public List<ChessPiece> list; }
 		[Serializable] public sealed class Name_PieceList_Dict : sd.SerializableDictionaryBase<ChessPiece.Name, ChessPieceList> { }
@@ -15,20 +15,13 @@ namespace IQChess.KingChess
 
 
 
-
-
-
-
-
-
-
-		protected override object _Play(ChessPiece chessPiece, bool undo, params Vector3Int[] pos)
+		public Vector3Int[] FindTarget(Player.IDType playerID, Vector3Int pos)
 		{
 			throw new NotImplementedException();
 		}
 
 
-		public Vector3Int[] FindTarget(Player.IDType playerID, Vector3Int pos)
+		protected override void _Play(ref ActionData data, bool undo = false)
 		{
 			throw new NotImplementedException();
 		}

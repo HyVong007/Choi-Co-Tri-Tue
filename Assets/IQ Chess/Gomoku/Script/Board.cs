@@ -3,7 +3,7 @@
 
 namespace IQChess.Gomoku
 {
-	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board>
+	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board, Player>
 	{
 		private readonly Vector3Int[][] vectors = new Vector3Int[][]
 		{
@@ -14,11 +14,13 @@ namespace IQChess.Gomoku
 		};
 
 
-		protected override object _Play(ChessPiece chessPiece, bool undo, params Vector3Int[] pos)
+		protected override void _Play(ref ActionData data, bool undo = false)
 		{
-			var p = pos[0];
+			var p = data.pos[0];
 			if (!undo)
 			{
+				var chessPiece = ChessPiece.Get(data.playerID);
+				chessPiece.transform.position = p.ArrayToWorld();
 				array[p.x][p.y] = chessPiece;
 				var enemyID = chessPiece.playerID == Player.IDType.O ? Player.IDType.X : Player.IDType.O;
 				foreach (var axe in vectors)
@@ -41,7 +43,6 @@ namespace IQChess.Gomoku
 				}
 			}
 			else array[p.x][p.y] = null;
-			return null;
 		}
 	}
 }
