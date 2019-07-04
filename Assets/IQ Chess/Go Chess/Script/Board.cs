@@ -26,7 +26,7 @@ namespace IQChess.GoChess
 		{
 			if (array[pos.x][pos.y]) return false;
 
-			var info = new Dictionary<Player.IDType, Dictionary<ChessPiece.Land, int>>()
+			var lands = new Dictionary<Player.IDType, Dictionary<ChessPiece.Land, int>>()
 			{
 				[Player.IDType.BLACK] = new Dictionary<ChessPiece.Land, int>(),
 				[Player.IDType.WHITE] = new Dictionary<ChessPiece.Land, int>()
@@ -38,28 +38,28 @@ namespace IQChess.GoChess
 				var c = array[p.x][p.y];
 				if (!c) return true;
 
-				if (!info[c.playerID].ContainsKey(c.land)) info[c.playerID][c.land] = 1;
-				else ++info[c.playerID][c.land];
+				if (!lands[c.playerID].ContainsKey(c.land)) lands[c.playerID][c.land] = 1;
+				else ++lands[c.playerID][c.land];
 				CONTINUE_LOOP_DIRECTIONS:;
 			}
 
-			foreach (var kvp in info)
+			foreach (var kvp in lands)
 				foreach (var kvpValue in kvp.Value)
 					if ((kvp.Key == playerID && kvpValue.Key.airHole > kvpValue.Value) || (kvp.Key != playerID && kvpValue.Key.airHole == kvpValue.Value)) return true;
 			return false;
 		}
 
 
-		private struct OriginalState
+		private struct State
 		{
 			public int emptyHole;
 			public List<ChessPiece.Land> dyingEnemies;
 			public Dictionary<ChessPiece.Land, int> enemies, allies;
 
 
-			public static OriginalState Create(Board board, Player.IDType centerID, Vector3Int centerPos)
+			public static State Create(Board board, Player.IDType centerID, Vector3Int centerPos)
 			{
-				var data = new OriginalState();
+				var data = new State();
 				data.dyingEnemies = new List<ChessPiece.Land>();
 				data.enemies = new Dictionary<ChessPiece.Land, int>();
 				data.allies = new Dictionary<ChessPiece.Land, int>();
@@ -97,19 +97,19 @@ namespace IQChess.GoChess
 		/// </summary>
 		protected override void _Play(ref ActionData data, bool undo = false)
 		{
-			var center = data.pos[0];
+			var centerPos = data.pos[0];
 			var enemyID = data.playerID == Player.IDType.BLACK ? Player.IDType.WHITE : Player.IDType.BLACK;
-			var state = (OriginalState)(data.customData != null ? data.customData : data.customData = OriginalState.Create(this, data.playerID, data.pos[0]));
+			var state = (State)(data.customData != null ? data.customData : data.customData = State.Create(this, data.playerID, centerPos));
 			if (!undo)
 			{
 				// CHƠI BÌNH THƯỜNG
 				// Liên kết các land mình hiện tại tạo land mới cho cờ ở center.
 				var chessPiece = ChessPiece.Get(data.playerID);
-				chessPiece.transform.position = center.ArrayToWorld();
-				array[center.x][center.y] = chessPiece;
+				chessPiece.transform.position = centerPos.ArrayToWorld();
+				array[centerPos.x][centerPos.y] = chessPiece;
 				chessPiece.land = new ChessPiece.Land() { airHole = state.emptyHole };
 				lands[chessPiece.playerID].Add(chessPiece.land);
-				chessPiece.land.positions.Add(center);
+				chessPiece.land.positions.Add(centerPos);
 				foreach (var land_point in state.allies)
 				{
 					chessPiece.land.airHole += (land_point.Key.airHole - land_point.Value);
@@ -142,8 +142,8 @@ namespace IQChess.GoChess
 			{
 				// HỦY NƯỚC ĐÃ ĐI
 				// Xóa con cờ đã đi
-				array[center.x][center.y].Recycle();
-				array[center.x][center.y] = null;
+				array[centerPos.x][centerPos.y].Recycle();
+				array[centerPos.x][centerPos.y] = null;
 
 				// Khôi phục con trỏ land mình
 				foreach (var land in state.allies.Keys)

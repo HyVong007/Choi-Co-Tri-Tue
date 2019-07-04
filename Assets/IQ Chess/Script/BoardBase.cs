@@ -192,7 +192,7 @@ namespace IQChess
 		internal static Vector2Int arraySize;
 
 
-		public static Vector3 ArrayToWorld(this Vector3Int a) { throw new NotImplementedException(); }
+		public static Vector3 ArrayToWorld(this Vector3Int a) => a + origin;
 
 		public static Vector3Int WorldToArray(this Vector3 w) => Vector3Int.FloorToInt(w - origin);
 
