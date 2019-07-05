@@ -25,5 +25,27 @@ namespace IQChess.KingChess
 		{
 			throw new NotImplementedException();
 		}
+
+
+		public override string SaveToJson()
+		{
+			throw new NotImplementedException();
+		}
+
+
+		public override byte[] SaveToStream()
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void Load(string json)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void Load(byte[] stream)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

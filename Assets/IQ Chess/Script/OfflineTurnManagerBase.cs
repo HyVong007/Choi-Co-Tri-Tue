@@ -51,6 +51,9 @@ namespace IQChess
 		protected IReadOnlyDictionary<I, P> playerDict = PlayerBase<I, P>.playerDict;
 
 
+		//  ===========================================================================
+
+
 		protected void Awake()
 		{
 			if (instance == null) instance = this as T;
@@ -66,13 +69,19 @@ namespace IQChess
 		}
 
 
+		protected void Start()
+		{
+			GlobalInformations.initializedTypes.Add(GetType());
+		}
+
+
 		protected void OnDestroy()
 		{
 			instance = null;
 		}
 
 
-		protected void BeginTurn()
+		public void BeginTurn()
 		{
 			++_turn;
 			nextPlayer.MoveNext();

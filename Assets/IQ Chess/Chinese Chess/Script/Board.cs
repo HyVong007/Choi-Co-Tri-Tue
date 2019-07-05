@@ -24,8 +24,9 @@ namespace IQChess.ChineseChess
 			[Player.IDType.BLUE] = new RectInt(3, 0, 3, 3),
 			[Player.IDType.RED] = new RectInt(3, 7, 3, 3)
 		};
-		private readonly RectInt river = new RectInt(0, 4, 9, 2);
 
+
+		//  ============================================================================
 
 
 		protected override void _Play(ref ActionData data, bool undo = false)
@@ -41,6 +42,7 @@ namespace IQChess.ChineseChess
 				array[stop.x][stop.y] = myPiece;
 				var myID = data.playerID;
 				var enemyID = 1 - data.playerID;
+				if (myPiece.visible == false) myPiece.visible = true;
 				Move(myPiece.transform, stop.ArrayToWorld()).ContinueWith((Task task) =>
 				{
 					deadEnemy?.gameObject.SetActive(false);
@@ -51,14 +53,14 @@ namespace IQChess.ChineseChess
 						return;
 					}
 
-					if (IsCheckMateState(enemyID, null, null))
+					if (IsCheckmateState(enemyID, null, null))
 					{
 						// Kiểm tra địch có bị chiếu bí không ? Nếu chiếu bí sẽ kết thúc trò chơi.
 						foreach (var enemyPieceList in pieces[enemyID].Values)
 							foreach (var enemyPiece in enemyPieceList.list)
 								if (enemyPiece.gameObject.activeSelf)
 									foreach (var target in FindAllPossibleTarget(enemyPiece))
-										if (!IsCheckMateState(enemyID, enemyPiece.transform.position.WorldToArray(), target)) goto ENEMY_ALIVE;
+										if (!IsCheckmateState(enemyID, enemyPiece.transform.position.WorldToArray(), target)) goto ENEMY_ALIVE;
 
 						_endGame?.Invoke(Player.playerDict[myID]);
 						return;
@@ -101,7 +103,7 @@ namespace IQChess.ChineseChess
 			if (!chessPiece || chessPiece.playerID != playerID) return result;
 
 			foreach (var target in FindAllPossibleTarget(chessPiece))
-				if (!IsCheckMateState(playerID, pos, target)) result.Add(target);
+				if (!IsCheckmateState(playerID, pos, target)) result.Add(target);
 			return result;
 		}
 
@@ -122,13 +124,49 @@ namespace IQChess.ChineseChess
 			[Vector3Int.up] = new Vector3Int[] { Vector3Int.left + Vector3Int.up, Vector3Int.right + Vector3Int.up },
 			[Vector3Int.down] = new Vector3Int[] { Vector3Int.left + Vector3Int.down, Vector3Int.right + Vector3Int.down }
 		};
+		private readonly IReadOnlyDictionary<Vector3Int, ChessPiece.Name> hiddenNameTables = new Dictionary<Vector3Int, ChessPiece.Name>()
+		{
+			[new Vector3Int(3, 0, 0)] = ChessPiece.Name.GUARD,
+			[new Vector3Int(5, 0, 0)] = ChessPiece.Name.GUARD,
+			[new Vector3Int(3, 9, 0)] = ChessPiece.Name.GUARD,
+			[new Vector3Int(5, 9, 0)] = ChessPiece.Name.GUARD,
+			[new Vector3Int(2, 0, 0)] = ChessPiece.Name.ELEPHANT,
+			[new Vector3Int(6, 0, 0)] = ChessPiece.Name.ELEPHANT,
+			[new Vector3Int(2, 9, 0)] = ChessPiece.Name.ELEPHANT,
+			[new Vector3Int(6, 9, 0)] = ChessPiece.Name.ELEPHANT,
+			[new Vector3Int(1, 0, 0)] = ChessPiece.Name.HORSE,
+			[new Vector3Int(7, 0, 0)] = ChessPiece.Name.HORSE,
+			[new Vector3Int(1, 9, 0)] = ChessPiece.Name.HORSE,
+			[new Vector3Int(7, 9, 0)] = ChessPiece.Name.HORSE,
+			[new Vector3Int(0, 0, 0)] = ChessPiece.Name.VEHICLE,
+			[new Vector3Int(8, 0, 0)] = ChessPiece.Name.VEHICLE,
+			[new Vector3Int(0, 9, 0)] = ChessPiece.Name.VEHICLE,
+			[new Vector3Int(8, 9, 0)] = ChessPiece.Name.VEHICLE,
+			[new Vector3Int(1, 2, 0)] = ChessPiece.Name.CANNON,
+			[new Vector3Int(7, 2, 0)] = ChessPiece.Name.CANNON,
+			[new Vector3Int(1, 7, 0)] = ChessPiece.Name.CANNON,
+			[new Vector3Int(7, 7, 0)] = ChessPiece.Name.CANNON,
+			[new Vector3Int(0, 3, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(2, 3, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(4, 3, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(6, 3, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(8, 3, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(0, 6, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(2, 6, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(4, 6, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(6, 6, 0)] = ChessPiece.Name.SOLDIER,
+			[new Vector3Int(8, 6, 0)] = ChessPiece.Name.SOLDIER,
+		};
+
+
 
 		private List<Vector3Int> FindAllPossibleTarget(ChessPiece chessPiece)
 		{
 			var result = new List<Vector3Int>();
 			var center = chessPiece.transform.position.WorldToArray();
 
-			switch (chessPiece.name)
+			bool normalRule = chessPiece.visible == null;
+			switch (chessPiece.visible == false ? hiddenNameTables[center] : chessPiece.name)
 			{
 				case ChessPiece.Name.GENERAL:
 				{
@@ -148,7 +186,7 @@ namespace IQChess.ChineseChess
 					foreach (var direction in CROSS_DIRECTIONS)
 					{
 						var pos = center + direction;
-						if (!castle.Contains(new Vector2Int(pos.x, pos.y))) continue;
+						if ((normalRule && !castle.Contains(new Vector2Int(pos.x, pos.y))) || (!normalRule && !pos.IsValidArray())) continue;
 						if (array[pos.x][pos.y]?.playerID != chessPiece.playerID) result.Add(pos);
 					}
 				}
@@ -160,9 +198,9 @@ namespace IQChess.ChineseChess
 					foreach (var direction in CROSS_DIRECTIONS)
 					{
 						var pos = center + direction;
-						if (!country.Contains(new Vector2Int(pos.x, pos.y)) || array[pos.x][pos.y]) continue;
+						if ((normalRule && !country.Contains(new Vector2Int(pos.x, pos.y))) || (!normalRule && !pos.IsValidArray()) || array[pos.x][pos.y]) continue;
 						pos += direction;
-						if (!country.Contains(new Vector2Int(pos.x, pos.y)) || array[pos.x][pos.y]?.playerID == chessPiece.playerID) continue;
+						if ((normalRule && !country.Contains(new Vector2Int(pos.x, pos.y))) || (!normalRule && !pos.IsValidArray()) || array[pos.x][pos.y]?.playerID == chessPiece.playerID) continue;
 						result.Add(pos);
 					}
 				}
@@ -187,16 +225,12 @@ namespace IQChess.ChineseChess
 				case ChessPiece.Name.VEHICLE:
 				{
 					foreach (var direction in MAIN_DIRECTIONS)
-					{
-						var pos = center + direction;
-						while (pos.IsValidArray())
+						for (var pos = center + direction; pos.IsValidArray(); pos += direction)
 						{
 							var c = array[pos.x][pos.y];
 							if (!c || c.playerID != chessPiece.playerID) result.Add(pos);
 							if (c) break;
-							pos += direction;
 						}
-					}
 				}
 				break;
 
@@ -204,18 +238,18 @@ namespace IQChess.ChineseChess
 				{
 					foreach (var direction in MAIN_DIRECTIONS)
 					{
-						var pos = center + direction;
 						bool active = false;
-						while (pos.IsValidArray())
+						for (var pos = center + direction; pos.IsValidArray(); pos += direction)
 						{
 							var c = array[pos.x][pos.y];
-							if (!active) if (!c) result.Add(pos); else active = true;
-							else if (c)
-							{
-								if (c.playerID != chessPiece.playerID) result.Add(pos);
-								break;
-							}
-							pos += direction;
+							if (c)
+								if (active)
+								{
+									if (c.playerID != chessPiece.playerID) result.Add(pos);
+									break;
+								}
+								else active = true;
+							else if (!active) result.Add(pos);
 						}
 					}
 				}
@@ -234,7 +268,7 @@ namespace IQChess.ChineseChess
 							if (direction != forwardDir * -1)
 							{
 								var pos = center + direction;
-								if (pos.IsValidArray() && array[pos.x][pos.y]?.playerID == chessPiece.playerID) continue;
+								if (!pos.IsValidArray() || array[pos.x][pos.y]?.playerID == chessPiece.playerID) continue;
 								result.Add(pos);
 							}
 				}
@@ -248,7 +282,7 @@ namespace IQChess.ChineseChess
 		///Chú ý: nếu con Tướng của playerID bị giết chết thì không phải là trạng thái Chiếu.
 		///<para>Nếu con Tướng của playerID bị giết thì kết thúc trò chơi ngay.</para>
 		/// </summary>
-		private bool IsCheckMateState(Player.IDType playerID, Vector3Int? startMove, Vector3Int? stopMove)
+		private bool IsCheckmateState(Player.IDType playerID, Vector3Int? startMove, Vector3Int? stopMove)
 		{
 			var movedChessPiece = startMove != null ? array[startMove.Value.x][startMove.Value.y] : null;
 			var generalPos = pieces[playerID][ChessPiece.Name.GENERAL].list[0].transform.position.WorldToArray();
@@ -288,19 +322,15 @@ namespace IQChess.ChineseChess
 				for (var pos = generalPos + direction; pos.IsValidArray(); pos += direction)
 				{
 					var c = FindChessPiece(pos);
-					if (!active)
-					{
-						if (c)
-						{
-							if (c.name == ChessPiece.Name.VEHICLE && c.playerID != playerID) return true;
-							active = true;
-						}
-					}
-					else if (c)
+					if (!c) continue;
+					if (active)
 					{
 						if (c.name == ChessPiece.Name.CANNON && c.playerID != playerID) return true;
 						break;
 					}
+
+					if (c.name == ChessPiece.Name.VEHICLE && c.playerID != playerID) return true;
+					active = true;
 				}
 			}
 
@@ -316,6 +346,30 @@ namespace IQChess.ChineseChess
 					}
 			}
 			return false;
+		}
+
+
+		public override string SaveToJson()
+		{
+			throw new NotImplementedException();
+		}
+
+
+		public override byte[] SaveToStream()
+		{
+			throw new NotImplementedException();
+		}
+
+
+		public override void Load(string json)
+		{
+			throw new NotImplementedException();
+		}
+
+
+		public override void Load(byte[] stream)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

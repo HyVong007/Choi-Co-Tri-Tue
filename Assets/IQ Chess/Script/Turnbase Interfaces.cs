@@ -82,5 +82,7 @@ namespace IQChess
 		float RemainPlayerTime(P player);
 
 		bool IsPlayerTimeOver(P player);
+
+		void BeginTurn();
 	}
 }

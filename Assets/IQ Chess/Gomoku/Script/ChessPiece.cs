@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 
 namespace IQChess.Gomoku
@@ -49,33 +50,15 @@ namespace IQChess.Gomoku
 		}
 
 
-		public override string SaveToJson()
+		public static void RecycleAll()
 		{
-			throw new System.NotImplementedException();
-		}
-
-
-		public override byte[] SaveToStream()
-		{
-			throw new System.NotImplementedException();
-		}
-
-
-		protected override ChessPieceBase<Player.IDType> Load(byte[] stream)
-		{
-			throw new System.NotImplementedException();
-		}
-
-
-		protected override ChessPieceBase<Player.IDType> Load(string json)
-		{
-			throw new System.NotImplementedException();
-		}
-
-
-		protected override void Load(Config c)
-		{
-			throw new System.NotImplementedException();
+			foreach (var id_list in usedPool)
+				foreach (var chessPiece in id_list.Value)
+				{
+					chessPiece.gameObject.SetActive(false);
+					freePool[id_list.Key].Push(chessPiece);
+				}
+			foreach (var key in usedPool.Keys) usedPool[key].Clear();
 		}
 	}
 }

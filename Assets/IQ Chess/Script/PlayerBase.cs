@@ -56,6 +56,12 @@ namespace IQChess
 		}
 
 
+		protected void Start()
+		{
+			GlobalInformations.initializedTypes.Add(GetType());
+		}
+
+
 		protected void OnDestroy()
 		{
 			(playerDict as Dictionary<I, P>).Remove(ID);

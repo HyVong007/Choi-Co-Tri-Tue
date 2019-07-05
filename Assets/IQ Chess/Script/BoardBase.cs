@@ -9,7 +9,7 @@ namespace IQChess
 	///<summary>Trong scene cần có sẵn 1 instance.</summary>
 	/// <exception cref="TooManyInstanceException"></exception>
 	[RequireComponent(typeof(SpriteRenderer))]
-	public abstract class BoardBase<I, C, B, P> : MonoBehaviour where I : Enum where C : ChessPieceBase<I> where B : BoardBase<I, C, B, P> where P : PlayerBase<I, P>
+	public abstract class BoardBase<I, C, B, P> : MonoBehaviour, IStorable where I : Enum where C : ChessPieceBase<I> where B : BoardBase<I, C, B, P> where P : PlayerBase<I, P>
 	{
 		public const int MAX_STEP = 100;
 
@@ -42,6 +42,12 @@ namespace IQChess
 		}
 
 
+		protected void Start()
+		{
+			GlobalInformations.initializedTypes.Add(GetType());
+		}
+
+
 		protected void OnDestroy()
 		{
 			instance = null;
@@ -68,9 +74,8 @@ namespace IQChess
 		protected abstract void _Play(ref ActionData data, bool undo = false);
 		protected readonly LinkedList<ActionData> recentActions = new LinkedList<ActionData>();
 		protected readonly LinkedList<ActionData> undoneActions = new LinkedList<ActionData>();
-
-
 		private int turn;
+
 
 		public void Play(I playerID, params Vector3Int[] pos)
 		{
@@ -145,7 +150,6 @@ namespace IQChess
 			} while (id.CompareTo(playerID) != 0);
 		}
 
-
 		/// <summary>
 		/// Sự kiện khi game kết thúc: có người thắng hay Hòa.
 		/// parameter: người chơi thắng. Nếu null: Hòa.
@@ -157,31 +161,24 @@ namespace IQChess
 		}
 		protected static Action<P> _endGame;
 
+		public abstract string SaveToJson();
 
-		public string SaveToJson()
-		{
-			throw new NotImplementedException();
-		}
-
-
-		public byte[] SaveToStream()
-		{
-			throw new NotImplementedException();
-		}
+		public abstract byte[] SaveToStream();
+		public abstract void Load(string json);
+		public abstract void Load(byte[] stream);
+	}
 
 
-		/// <exception cref="CannotLoadException"></exception>
-		public static BoardBase<I, C, B, P> Load(string json)
-		{
-			throw new NotImplementedException();
-		}
 
+	public interface IStorable
+	{
+		string SaveToJson();
 
-		/// <exception cref="CannotLoadException"></exception>
-		public static BoardBase<I, C, B, P> Load(byte[] stream)
-		{
-			throw new NotImplementedException();
-		}
+		byte[] SaveToStream();
+
+		void Load(string json);
+
+		void Load(byte[] stream);
 	}
 
 

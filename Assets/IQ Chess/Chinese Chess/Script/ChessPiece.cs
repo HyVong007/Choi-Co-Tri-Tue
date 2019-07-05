@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using sd = RotaryHeart.Lib.SerializableDictionary;
+using System;
 
 
 namespace IQChess.ChineseChess
@@ -10,38 +12,18 @@ namespace IQChess.ChineseChess
 			GENERAL, GUARD, ELEPHANT, HORSE, VEHICLE, CANNON, SOLDIER
 		}
 		public new Name name;
-
-
-		//  ==========================================================================
-
-
-		public override string SaveToJson()
+		private bool? _visible;
+		public bool? visible
 		{
-			throw new System.NotImplementedException();
+			get => _visible;
+			set => spriteRenderer.sprite = (_visible = value) == false ? hiddenSprites[playerID] : normalSprites[playerID][name];
 		}
 
-
-		public override byte[] SaveToStream()
-		{
-			throw new System.NotImplementedException();
-		}
-
-
-		protected override ChessPieceBase<Player.IDType> Load(byte[] stream)
-		{
-			throw new System.NotImplementedException();
-		}
-
-
-		protected override ChessPieceBase<Player.IDType> Load(string json)
-		{
-			throw new System.NotImplementedException();
-		}
-
-
-		protected override void Load(ChessPieceBase<Player.IDType>.Config c)
-		{
-			throw new System.NotImplementedException();
-		}
+		[SerializeField] private SpriteRenderer spriteRenderer;
+		[Serializable] public sealed class Name_Sprite_Dict : sd.SerializableDictionaryBase<Name, Sprite> { }
+		[Serializable] public sealed class ID_Name_Sprite_Dict : sd.SerializableDictionaryBase<Player.IDType, Name_Sprite_Dict> { }
+		[SerializeField] private ID_Name_Sprite_Dict normalSprites;
+		[Serializable] public sealed class ID_Sprite_Dict : sd.SerializableDictionaryBase<Player.IDType, Sprite> { }
+		[SerializeField] private ID_Sprite_Dict hiddenSprites;
 	}
 }
