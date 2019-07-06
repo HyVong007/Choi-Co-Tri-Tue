@@ -5,7 +5,7 @@ namespace IQChess.Gomoku
 {
 	public sealed class GameManager : MonoBehaviour
 	{
-		private void Start()
+		private void mStart()
 		{
 			GlobalInformations.WaitForTypesInitialized(
 				OfflineTurnManager.instance.BeginTurn,

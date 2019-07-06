@@ -7,7 +7,7 @@ namespace IQChess.Gomoku
 	{
 		public new sealed class Config : BoardBase<Player.IDType, ChessPiece, Board, Player>.Config
 		{
-			public string json;
+			public string json = "";
 			public byte[] stream;
 		}
 

@@ -37,7 +37,11 @@ namespace IQChess.Gomoku
 				used.Add(piece);
 				piece.gameObject.SetActive(true);
 			}
-			else used.Add(piece = Instantiate(prefab(playerID)));
+			else
+			{
+				used.Add(piece = Instantiate(prefab(playerID)));
+				piece.transform.parent = Board.instance.transform;
+			}
 			return piece;
 		}
 

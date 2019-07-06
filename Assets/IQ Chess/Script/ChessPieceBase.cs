@@ -12,12 +12,6 @@ namespace IQChess
 	[RequireComponent(typeof(SpriteRenderer))]
 	public abstract class ChessPieceBase<I> : MonoBehaviour where I : Enum
 	{
-		public class Config
-		{
-			public static Config instance;
-			public I playerID;
-		}
-
 		public I playerID;
 	}
 }
