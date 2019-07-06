@@ -26,7 +26,7 @@ namespace IQChess.Gomoku
 
 
 
-		public static ChessPiece Get(Player.IDType playerID)
+		public static ChessPiece Get(Player.IDType playerID, Vector3 pos = default)
 		{
 			var used = usedPool[playerID];
 			var free = freePool[playerID];
@@ -42,6 +42,7 @@ namespace IQChess.Gomoku
 				used.Add(piece = Instantiate(prefab(playerID)));
 				piece.transform.parent = Board.instance.transform;
 			}
+			piece.transform.position = pos;
 			return piece;
 		}
 

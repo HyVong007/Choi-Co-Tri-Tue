@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 
 namespace IQChess.KingChess
@@ -48,6 +49,12 @@ namespace IQChess.KingChess
 
 
 		public override void OnRequestDenied(int turn, RequestEvent ev)
+		{
+			throw new System.NotImplementedException();
+		}
+
+
+		public override void OnPointerClick(PointerEventData eventData)
 		{
 			throw new System.NotImplementedException();
 		}

@@ -62,27 +62,4 @@ namespace IQChess
 		/// <param name="player"></param>
 		void OnRequestDenied(int turn, RequestEvent ev);
 	}
-
-
-
-	public interface ITurnManager<I, P> : ISender where I : Enum where P : PlayerBase<I, P>
-	{
-		int turn { get; }
-
-		P player { get; }
-
-		float elapsedTurnTime { get; }
-
-		float remainTurnTime { get; }
-
-		bool isTurnTimeOver { get; }
-
-		float ElapsePlayerTime(P player);
-
-		float RemainPlayerTime(P player);
-
-		bool IsPlayerTimeOver(P player);
-
-		void BeginTurn();
-	}
 }

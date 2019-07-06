@@ -1,19 +1,25 @@
 ﻿using UnityEngine;
+using IQChess;
 using IQChess.Gomoku;
 
 
 public sealed class ConfigGenerator : MonoBehaviour
 {
+	public IQChess.Gomoku.GameManager.Config gameConfig;
+	public Board.Config boardConfig;
+	public OfflineTurnManager.Config turnConfig;
+	public Player.Config playerConfig;
+
+
+
 	private void Awake()
 	{
-		Player.Config.instance = new Player.Config()
-		{
-			player1 = (Player.IDType.O, Player.Type.HUMAN, Player.Connection.LOCAL),
-			player2 = (Player.IDType.X, Player.Type.HUMAN, Player.Connection.LOCAL)
-		};
-
-		Board.Config.instance = new Board.Config() { arraySize = new Vector2Int(10, 10) };
-
-		OfflineTurnManager.Config.instance = new OfflineTurnManager.Config() { maxTurnTimeSeconds = 5, maxPlayerTimeSeconds = 7 };
+		GlobalInformations.Reset();
+		var cfg = GlobalInformations.allConfigs;
+		cfg.Add(Board.Config.instance = boardConfig);
+		cfg.Add(OfflineTurnManager.Config.instance = turnConfig);
+		cfg.Add(Player.Config.instance = playerConfig);
+		playerConfig.Save();
+		cfg.Add(IQChess.Gomoku.GameManager.Config.instance = gameConfig);
 	}
 }

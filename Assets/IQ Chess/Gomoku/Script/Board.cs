@@ -5,13 +5,14 @@ namespace IQChess.Gomoku
 {
 	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board, Player>
 	{
+		[System.Serializable]
 		public new sealed class Config : BoardBase<Player.IDType, ChessPiece, Board, Player>.Config
 		{
-			public string json = "";
-			public byte[] stream;
+			/// <summary>
+			/// Nếu true: con cờ nằm giữa ô. Nếu false thì con cờ nằm trên giao điểm đường kẻ.
+			/// </summary>
+			public bool gridCenter = true;
 		}
-
-
 
 		private readonly Vector3Int[][] vectors = new Vector3Int[][]
 		{
@@ -21,6 +22,30 @@ namespace IQChess.Gomoku
 			new Vector3Int[]{Vector3Int.left + Vector3Int.down, Vector3Int.right + Vector3Int.up}
 		};
 
+		#region [ Khởi tạo: Vẽ bàn cờ và con cờ ]
+		[SerializeField] private Transform cellPrefab;
+		[SerializeField] private Transform boardCells;
+
+		private new void Awake()
+		{
+			base.Awake();
+
+			// Vẽ đường kẻ
+			var config = Config.instance as Config;
+			var boardSize = config.gridCenter ? Conversion.arraySize : Conversion.arraySize + Vector2Int.one;
+			var origin = config.gridCenter ? Conversion.origin + Conversion.ZERO_DOT_FIVE : Conversion.origin;
+			var pos = new Vector3();
+			var index = new Vector2Int();
+			for (pos.x = origin.x, index.x = 0; index.x < boardSize.x; ++pos.x, ++index.x)
+				for (pos.y = origin.y, index.y = 0; index.y < boardSize.y; ++pos.y, ++index.y)
+					Instantiate(cellPrefab, boardCells).localPosition = pos;
+
+			// Vẽ hình nền Background
+		}
+		#endregion
+
+
+		//  =========================================================================
 
 
 		protected override void _Play(ref ActionData data, bool undo = false)
@@ -28,9 +53,7 @@ namespace IQChess.Gomoku
 			var p = data.pos[0];
 			if (!undo)
 			{
-				var chessPiece = ChessPiece.Get(data.playerID);
-				chessPiece.transform.position = p.ArrayToWorld();
-				array[p.x][p.y] = chessPiece;
+				var chessPiece = array[p.x][p.y] = ChessPiece.Get(data.playerID, p.ArrayToWorld());
 				var enemyID = chessPiece.playerID == Player.IDType.O ? Player.IDType.X : Player.IDType.O;
 				foreach (var axe in vectors)
 				{
@@ -51,11 +74,12 @@ namespace IQChess.Gomoku
 				CONTINUE_LOOP_AXE:;
 				}
 			}
-			else array[p.x][p.y] = null;
+			else
+			{
+				array[p.x][p.y].Recycle();
+				array[p.x][p.y] = null;
+			}
 		}
-
-
-		//  =========================================================================
 
 
 		private struct JsonData
@@ -75,7 +99,6 @@ namespace IQChess.Gomoku
 
 			public Row[] array;
 		}
-
 
 		public override string SaveToJson()
 		{
@@ -116,11 +139,6 @@ namespace IQChess.Gomoku
 				}
 			}
 		}
-
-
-
-
-
 
 
 		public override byte[] SaveToStream()

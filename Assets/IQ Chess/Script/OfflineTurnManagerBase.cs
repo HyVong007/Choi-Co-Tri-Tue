@@ -5,149 +5,97 @@ using UnityEngine;
 
 namespace IQChess
 {
+	/// <summary>Lớp con phải thông báo sẵn sàng chơi.</summary>
 	/// <exception cref="TooManyInstanceException"></exception>
-	public abstract class OfflineTurnManagerBase<I, P, T, B, C> : MonoBehaviour, ITurnManager<I, P> where I : Enum where P : PlayerBase<I, P> where T : OfflineTurnManagerBase<I, P, T, B, C> where B : BoardBase<I, C, B, P> where C : ChessPieceBase<I>
+	public abstract class OfflineTurnManagerBase<I, P, T, B, C> : TurnManagerBase<I, P> where I : Enum where P : PlayerBase<I, P> where T : OfflineTurnManagerBase<I, P, T, B, C> where B : BoardBase<I, C, B, P> where C : ChessPieceBase<I>
 	{
-		[Serializable]
-		public class Config
-		{
-			public static Config instance;
-
-			/// <summary>
-			/// maxPlayerTimeSeconds phải lớn hơn maxTurnTimeSeconds.
-			/// </summary>
-			public float maxTurnTimeSeconds, maxPlayerTimeSeconds;
-		}
-
-		public static T instance { get; private set; }
-		protected int _turn = -1;
-		protected IEnumerator<P> nextPlayer = NextPlayer();
-
-		protected static IEnumerator<P> NextPlayer()
-		{
-			while (true) foreach (P player in PlayerBase<I, P>.playerDict.Values) yield return player;
-		}
-		protected float startTurnTime, maxTurnTime, maxPlayerTime;
+		protected float startTurnTime;
 		protected readonly Dictionary<I, float> startPlayerTime = new Dictionary<I, float>(), elapsedPlayerTime = new Dictionary<I, float>();
-		protected bool freezeTime = true;
-		protected readonly Dictionary<ReportEvent, int> reportCount = new Dictionary<ReportEvent, int>();
 
-		public int turn => _turn;
+		public override float elapsedTurnTime => Time.time - startTurnTime;
 
-		public P player => nextPlayer.Current;
+		public override float remainTurnTime => Mathf.Clamp(maxTurnTime - elapsedTurnTime, 0, maxTurnTime);
 
-		public float elapsedTurnTime => Time.time - startTurnTime;
+		public override bool isTurnTimeOver => remainTurnTime == 0;
 
-		public float remainTurnTime => Mathf.Clamp(maxTurnTime - elapsedTurnTime, 0, maxTurnTime);
+		public override float ElapsePlayerTime(P player) => elapsedPlayerTime[player.ID];
 
-		public bool isTurnTimeOver => remainTurnTime == 0;
+		public override float RemainPlayerTime(P player) => Mathf.Clamp(maxPlayerTime - elapsedPlayerTime[player.ID], 0, maxPlayerTime);
 
-		public float ElapsePlayerTime(P player) => elapsedPlayerTime[player.ID];
-
-		public float RemainPlayerTime(P player) => Mathf.Clamp(maxPlayerTime - elapsedPlayerTime[player.ID], 0, maxPlayerTime);
-
-		public bool IsPlayerTimeOver(P player) => RemainPlayerTime(player) == 0;
-
-		protected IReadOnlyDictionary<I, P> playerDict = PlayerBase<I, P>.playerDict;
+		public override bool IsPlayerTimeOver(P player) => RemainPlayerTime(player) == 0;
 
 
 		//  ===========================================================================
 
 
-		protected void Awake()
+		protected new void Awake()
 		{
-			if (instance == null) instance = this as T;
-			else throw new TooManyInstanceException("Không thể tạo quá 1 instance !");
-
-			var c = Config.instance;
-			maxTurnTime = c.maxTurnTimeSeconds; maxPlayerTime = c.maxPlayerTimeSeconds;
-			foreach (I id in Enum.GetValues(typeof(I)))
-			{
-				startPlayerTime[id] = elapsedPlayerTime[id] = 0;
-			}
-			foreach (ReportEvent ev in Enum.GetValues(typeof(ReportEvent))) reportCount[ev] = 0;
+			base.Awake();
+			foreach (I id in Enum.GetValues(typeof(I))) startPlayerTime[id] = elapsedPlayerTime[id] = 0;
 		}
 
 
-		protected void Start()
+		public override void BeginTurn()
 		{
-			GlobalInformations.initializedTypes.Add(GetType());
-		}
-
-
-		protected void OnDestroy()
-		{
-			instance = null;
-		}
-
-
-		public void BeginTurn()
-		{
-			++_turn;
+			++turn;
 			nextPlayer.MoveNext();
 			startTurnTime = Time.time;
 			startPlayerTime[player.ID] = Time.time - elapsedPlayerTime[player.ID];
 			freezeTime = true;
 			if (GameManager.debug)
 			{
-				print($"Turn= {_turn}: OnTurnBegin()");
+				print($"Turn= {turn}: OnTurnBegin()");
 			}
 
-			foreach (IListener<I, P> listener in playerDict.Values) listener.OnTurnBegin(_turn);
+			foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnTurnBegin(turn);
 		}
 
 
-		public virtual void Play(params Vector3Int[] data)
+		public override void Play(params Vector3Int[] data)
 		{
 			if (GameManager.debug)
 			{
 				string s = "";
 				foreach (var v in data) s += $"{v}, ";
-				print($"Turn= {_turn}: Play({s})");
+				print($"Turn= {turn}: Play({s})");
 			}
 
 			freezeTime = true;
-			foreach (IListener<I, P> listener in playerDict.Values) listener.OnPlayed(_turn, player, data);
+			foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnPlayed(turn, player, data);
 		}
 
 
-		public virtual void QuitTurn()
+		public override void QuitTurn()
 		{
 			if (GameManager.debug)
 			{
-				print($"Turn= {_turn}: QuitTurn()");
+				print($"Turn= {turn}: QuitTurn()");
 			}
 
 			freezeTime = true;
-			foreach (IListener<I, P> listener in playerDict.Values) listener.OnTurnQuit(_turn);
+			foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnTurnQuit(turn);
 		}
 
 
-		public virtual void RequestDrawn()
-		{
-			throw new NotImplementedException();
-		}
-
-
-		public virtual void Surrender()
+		public override void Surrender()
 		{
 			if (GameManager.debug)
 			{
-				print($"Turn= {_turn}: Surrender()");
+				print($"Turn= {turn}: Surrender()");
 			}
 
 			freezeTime = true; P winner = null;
-			foreach (P player in playerDict.Values) if (player != this.player) { winner = player; break; }
-			foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameEvent.SURRENDER, winner);
+			foreach (P player in PlayerBase<I, P>.playerDict.Values) if (player != this.player) { winner = player; break; }
+			foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnGameEnd(turn, EndGameEvent.SURRENDER, winner);
 		}
 
 
-		public virtual void Report(ReportEvent action, params object[] data)
+		public override void Report(ReportEvent action, params object[] data)
 		{
 			switch (action)
 			{
 				case ReportEvent.DONE_TURN_BEGIN:
-					if (++reportCount[ReportEvent.DONE_TURN_BEGIN] == playerDict.Count)
+					if (++reportCount[ReportEvent.DONE_TURN_BEGIN] == PlayerBase<I, P>.playerDict.Count)
 					{
 						reportCount[ReportEvent.DONE_TURN_BEGIN] = 0;
 						freezeTime = false;
@@ -155,7 +103,7 @@ namespace IQChess
 					break;
 
 				case ReportEvent.DONE_TURN_QUIT:
-					if (++reportCount[ReportEvent.DONE_TURN_QUIT] == playerDict.Count)
+					if (++reportCount[ReportEvent.DONE_TURN_QUIT] == PlayerBase<I, P>.playerDict.Count)
 					{
 						reportCount[ReportEvent.DONE_TURN_QUIT] = 0;
 						freezeTime = false;
@@ -164,18 +112,18 @@ namespace IQChess
 					break;
 
 				case ReportEvent.DONE_PLAYER_PLAYED:
-					if (++reportCount[ReportEvent.DONE_PLAYER_PLAYED] == playerDict.Count)
+					if (++reportCount[ReportEvent.DONE_PLAYER_PLAYED] == PlayerBase<I, P>.playerDict.Count)
 					{
 						reportCount[ReportEvent.DONE_PLAYER_PLAYED] = 0;
-						var array = new Vector3Int[data.Length];
-						Array.Copy(data, array, data.Length);
-						//if (BoardBase<C, B>.instance.IsWin(array)) foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameEvent.WIN, player);
-						//else BeginTurn();
+						//var array = new Vector3Int[data.Length];
+						//Array.Copy(data, array, data.Length);
+						//if (BoardBase<I, C, B, P>.instance.IsWin(player.ID)) foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnGameEnd(turn, EndGameEvent.WIN, player);
+						BeginTurn();
 					}
 					break;
 
 				case ReportEvent.DONE_TURN_TIME_OVER:
-					if (++reportCount[ReportEvent.DONE_TURN_TIME_OVER] == playerDict.Count)
+					if (++reportCount[ReportEvent.DONE_TURN_TIME_OVER] == PlayerBase<I, P>.playerDict.Count)
 					{
 						reportCount[ReportEvent.DONE_TURN_TIME_OVER] = 0;
 						BeginTurn();
@@ -194,28 +142,29 @@ namespace IQChess
 				{
 					if (GameManager.debug)
 					{
-						print($"Turn= {_turn} IsPlayerTimeOver . player.ID= {player.ID}");
+						print($"Turn= {turn} IsPlayerTimeOver . player.ID= {player.ID}");
 					}
 
 					freezeTime = true;
 					P winner = null;
-					foreach (P player in playerDict.Values) if (player != this.player) { winner = player; break; }
-					foreach (IListener<I, P> listener in playerDict.Values) listener.OnGameEnd(_turn, EndGameEvent.PLAYER_TIME_OVER, winner);
+					foreach (P player in PlayerBase<I, P>.playerDict.Values) if (player != this.player) { winner = player; break; }
+					foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnGameEnd(turn, EndGameEvent.PLAYER_TIME_OVER, winner);
 				}
 				else if (isTurnTimeOver)
 				{
 					if (GameManager.debug)
 					{
-						print($"Turn= {_turn}: isTurnTimeOver . player.ID= {player.ID}");
+						print($"Turn= {turn}: isTurnTimeOver . player.ID= {player.ID}");
 					}
 
 					freezeTime = true;
-					foreach (IListener<I, P> listener in playerDict.Values) listener.OnTurnTimeOver(_turn);
+					foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnTurnTimeOver(turn);
 				}
 			}
 		}
 
-		public void Request(RequestEvent ev)
+
+		public override void Request(RequestEvent ev)
 		{
 			throw new NotImplementedException();
 		}

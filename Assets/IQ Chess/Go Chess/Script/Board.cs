@@ -7,6 +7,16 @@ namespace IQChess.GoChess
 {
 	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board, Player>
 	{
+		[Serializable]
+		public new sealed class Config : BoardBase<Player.IDType, ChessPiece, Board, Player>.Config
+		{
+			/// <summary>
+			/// Nếu true: con cờ nằm giữa ô. Nếu false thì con cờ nằm trên giao điểm đường kẻ.
+			/// </summary>
+			public bool gridCenter = true;
+		}
+
+
 		private static readonly Vector3Int[] directions = new Vector3Int[]
 		{
 			Vector3Int.left, Vector3Int.right, Vector3Int.up, Vector3Int.down

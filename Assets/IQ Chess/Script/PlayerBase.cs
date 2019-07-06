@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using System;
 
 
 namespace IQChess
 {
-	///<summary>Trong scene cần có sẵn 2 instance.</summary>
+	///<summary>Trong scene cần có sẵn 2 instance.
+	///<para>Lớp con phải thông báo sẵn sàng chơi.</para></summary>
 	/// <typeparam name="I">Kiểu của ID của người chơi.</typeparam>
 	/// <exception cref="TooManyInstanceException"></exception>
 	[RequireComponent(typeof(SpriteRenderer))]
-	public abstract class PlayerBase<I, P> : MonoBehaviour, IListener<I, P> where I : Enum where P : PlayerBase<I, P>
+	public abstract class PlayerBase<I, P> : MonoBehaviour, IListener<I, P>, IPointerClickHandler where I : Enum where P : PlayerBase<I, P>
 	{
 		[Serializable]
 		public class Config
@@ -34,9 +36,22 @@ namespace IQChess
 
 		public Connection connection { get; private set; }
 
-		public bool canPlay { get; protected set; }
+		private bool _canPlay;
+		public bool canPlay
+		{
+			get => _canPlay;
+			set
+			{
+				_canPlay = value;
+				collider.gameObject.SetActive(value);
+			}
+		}
 
 		public static readonly Dictionary<I, P> playerDict = new Dictionary<I, P>();
+
+		[SerializeField] private new BoxCollider2D collider;
+		private static TurnManagerBase<I, P> _turnManager;
+		protected static TurnManagerBase<I, P> turnManager => _turnManager ? _turnManager : _turnManager = TurnManagerBase<I, P>.instance;
 
 
 		//  =========================================================================
@@ -51,14 +66,14 @@ namespace IQChess
 				case 1: (ID, type, connection) = c.player2; break;
 				default: throw new TooManyInstanceException("Trong scene đã có sẵn nhiều hơn 2 instance !");
 			}
-
 			playerDict[ID] = this as P;
 		}
 
 
 		protected void Start()
 		{
-			GlobalInformations.initializedTypes.Add(GetType());
+			var size = Conversion.arraySize;
+			collider.transform.localScale = new Vector3(size.x, size.y, 0);
 		}
 
 
@@ -81,5 +96,7 @@ namespace IQChess
 		public abstract void OnRequestReceived(int turn, RequestEvent ev, P requester);
 
 		public abstract void OnRequestDenied(int turn, RequestEvent ev);
+
+		public abstract void OnPointerClick(PointerEventData eventData);
 	}
 }

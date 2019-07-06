@@ -41,3 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: BACKGROUND
+    uniqueID: 2187768827
+    locked: 0
+  - name: BOARD BORDER
+    uniqueID: 2309335041
+    locked: 0
+  - name: CHESS PIECE
+    uniqueID: 3610163259
+    locked: 0
+  - name: HIGH LIGHT PIECE
+    uniqueID: 2067184451
+    locked: 0

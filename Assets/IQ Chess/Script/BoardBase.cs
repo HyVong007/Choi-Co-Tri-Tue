@@ -6,9 +6,9 @@ using System.Collections.Generic;
 namespace IQChess
 {
 	///<typeparam name="I">Kiểu của ID của người chơi.</typeparam>
-	///<summary>Trong scene cần có sẵn 1 instance.</summary>
+	///<summary>Trong scene cần có sẵn 1 instance.
+	///<para>Lớp con phải thông báo sẵn sàng chơi.</para></summary>
 	/// <exception cref="TooManyInstanceException"></exception>
-	[RequireComponent(typeof(SpriteRenderer))]
 	public abstract class BoardBase<I, C, B, P> : MonoBehaviour, IStorable where I : Enum where C : ChessPieceBase<I> where B : BoardBase<I, C, B, P> where P : PlayerBase<I, P>
 	{
 		public const int MAX_STEP = 100;
@@ -18,6 +18,8 @@ namespace IQChess
 		{
 			public static Config instance;
 			public Vector2Int arraySize;
+			public string json = "";
+			public byte[] stream;
 		}
 
 		public static B instance { get; private set; }
@@ -30,12 +32,12 @@ namespace IQChess
 
 		protected void Awake()
 		{
-			if (instance == null) instance = this as B;
+			if (!instance) instance = this as B;
 			else throw new TooManyInstanceException("Không thể tạo nhiều hơn 1 BoardBase !");
 
 			var c = Config.instance;
 			array = new C[c.arraySize.x][];
-			for (int i = 0; i < array.Length; ++i) array[i] = new C[c.arraySize.y];
+			for (int x = 0; x < array.Length; ++x) array[x] = new C[c.arraySize.y];
 			Conversion.origin = new Vector3(-array.Length / 2f, -array[0].Length / 2f, 0);
 			Conversion.arraySize = c.arraySize;
 			foreach (I id in Enum.GetValues(typeof(I))) playerVictoryStates[id] = false;
@@ -187,20 +189,35 @@ namespace IQChess
 	{
 		internal static Vector3 origin;
 		internal static Vector2Int arraySize;
+		public static readonly Vector3 ZERO_DOT_FIVE = new Vector3(0.5f, 0.5f, 0);
 
-
-		public static Vector3 ArrayToWorld(this Vector3Int a) => a + origin;
-
-		public static Vector3Int WorldToArray(this Vector3 w) => Vector3Int.FloorToInt(w - origin);
-
-		public static Vector3Int ScreenToArray(this Vector3Int s) => s.ScreenToWorld().WorldToArray();
-
-		public static Vector3Int ArrayToScreen(this Vector3Int a) => a.ArrayToWorld().WorldToScreen();
-
-		public static Vector3 ScreenToWorld(this Vector3Int s) => Vector3Int.FloorToInt(Camera.main.ScreenToWorldPoint(s));
-
-		public static Vector3Int WorldToScreen(this Vector3 w) => Vector3Int.FloorToInt(Camera.main.WorldToScreenPoint(w));
 
 		public static bool IsValidArray(this Vector3Int a) => 0 <= a.x && a.x < arraySize.x && 0 <= a.y && a.y < arraySize.y;
+
+		public static Vector3 ArrayToWorld(this Vector3Int array) => array + origin + ZERO_DOT_FIVE;
+
+
+		public static Vector3Int WorldToArray(this Vector3 world)
+		{
+			var result = Vector3Int.FloorToInt(world - ZERO_DOT_FIVE - origin);
+			result.z = 0;
+			return result;
+		}
+
+
+		public static Vector3Int ScreenToArray(this Vector3 screen)
+		{
+			var result = Vector3Int.FloorToInt(Camera.main.ScreenToWorldPoint(screen) - origin);
+			result.z = 0;
+			return result;
+		}
+
+
+		public static Vector3 ScreenToWorld(this Vector3 screen)
+		{
+			var result = Vector3Int.FloorToInt(Camera.main.ScreenToWorldPoint(screen) - origin) + origin + ZERO_DOT_FIVE;
+			result.z = 0;
+			return result;
+		}
 	}
 }
