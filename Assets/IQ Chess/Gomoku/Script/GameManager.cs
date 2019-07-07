@@ -5,6 +5,7 @@ namespace IQChess.Gomoku
 {
 	public sealed class GameManager : MonoBehaviour
 	{
+		#region KHỞI TẠO
 		[System.Serializable]
 		public struct Config
 		{
@@ -26,13 +27,24 @@ namespace IQChess.Gomoku
 			var config = Config.instance;
 			if (config.isOnline) Instantiate(onlineTurnPrefab); else Instantiate(offlineTurnPrefab);
 		}
+		#endregion
 
 
 		private void Start()
 		{
-			GlobalInformations.WaitForTypesInitialized(
-				OfflineTurnManager.instance.BeginTurn,
-				typeof(Board), typeof(Player), typeof(TurnManagerBase<Player.IDType, Player>));
+			GlobalInformations.initializedTypes.Add(GetType());
+		}
+
+
+		private void Update()
+		{
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				var b = Board.instance;
+				var id = TurnManagerBase<Player.IDType, Player>.instance.player.ID;
+				print($"Is win [{id}]= " + b.IsWin(id));
+				print("Win line= " + b.winLine[0].WorldToArray() + ", " + b.winLine[1].WorldToArray());
+			}
 		}
 	}
 }

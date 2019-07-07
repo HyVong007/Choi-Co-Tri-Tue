@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 
 namespace IQChess.Gomoku
 {
 	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board, Player>
 	{
+		#region KHỞI TẠO
 		[System.Serializable]
 		public new sealed class Config : BoardBase<Player.IDType, ChessPiece, Board, Player>.Config
 		{
@@ -22,7 +24,6 @@ namespace IQChess.Gomoku
 			new Vector3Int[]{Vector3Int.left + Vector3Int.down, Vector3Int.right + Vector3Int.up}
 		};
 
-		#region [ Khởi tạo: Vẽ bàn cờ và con cờ ]
 		[SerializeField] private Transform cellPrefab;
 		[SerializeField] private Transform boardCells;
 
@@ -42,46 +43,16 @@ namespace IQChess.Gomoku
 
 			// Vẽ hình nền Background
 		}
+
+
+		private void Start()
+		{
+			GlobalInformations.initializedTypes.Add(GetType());
+		}
 		#endregion
 
 
-		//  =========================================================================
-
-
-		protected override void _Play(ref ActionData data, bool undo = false)
-		{
-			var p = data.pos[0];
-			if (!undo)
-			{
-				var chessPiece = array[p.x][p.y] = ChessPiece.Get(data.playerID, p.ArrayToWorld());
-				var enemyID = chessPiece.playerID == Player.IDType.O ? Player.IDType.X : Player.IDType.O;
-				foreach (var axe in vectors)
-				{
-					int count = 1, enemy = 0;
-					foreach (var direction in axe)
-					{
-						for (var point = p + direction; count <= 6 && point.IsValidArray(); point += direction)
-						{
-							var id = array[point.x][point.y]?.playerID;
-							if (id == chessPiece.playerID) { ++count; continue; }
-							if (id == enemyID) ++enemy;
-							break;
-						}
-						if (count > 5) goto CONTINUE_LOOP_AXE;
-					}
-
-					if (count == 5 && enemy < 2) { playerVictoryStates[chessPiece.playerID] = true; break; }
-				CONTINUE_LOOP_AXE:;
-				}
-			}
-			else
-			{
-				array[p.x][p.y].Recycle();
-				array[p.x][p.y] = null;
-			}
-		}
-
-
+		#region SAVE/ LOAD
 		private struct JsonData
 		{
 			[System.Serializable]
@@ -150,6 +121,64 @@ namespace IQChess.Gomoku
 		public override void Load(byte[] stream)
 		{
 			throw new System.NotImplementedException();
+		}
+		#endregion
+
+
+		#region IsWin(playerID)
+		private readonly Dictionary<Player.IDType, bool> playerWin = new Dictionary<Player.IDType, bool>()
+		{
+			[Player.IDType.O] = false,
+			[Player.IDType.X] = false
+		};
+
+		public readonly Vector3[] winLine = new Vector3[2];
+
+		public override bool IsWin(Player.IDType playerID) => playerWin[playerID];
+		#endregion
+
+
+		protected override void _Play(ref ActionData data, bool undo = false)
+		{
+			var p = data.pos[0];
+			if (!undo)
+			{
+				// Chơi bình thường, Kiểm tra win.
+				var chessPiece = array[p.x][p.y] = ChessPiece.Get(data.playerID, p.ArrayToWorld());
+				var myID = chessPiece.playerID;
+				var enemyID = chessPiece.playerID == Player.IDType.O ? Player.IDType.X : Player.IDType.O;
+				foreach (var axe in vectors)
+				{
+					winLine[0] = winLine[1] = p;
+					int count = 1, enemy = 0, lineIndex = 0;
+					foreach (var direction in axe)
+					{
+						for (var point = p + direction; count <= 6 && point.IsValidArray(); point += direction)
+						{
+							var ID = array[point.x][point.y]?.playerID;
+							if (ID == myID) { winLine[lineIndex] = point; ++count; continue; }
+							if (ID == enemyID) ++enemy;
+							break;
+						}
+						if (count > 5) goto CONTINUE_LOOP_AXE;
+						++lineIndex;
+					}
+
+					if (count == 5 && enemy < 2)
+					{
+						for (int i = 0; i < 2; ++i) winLine[i] = Vector3Int.FloorToInt(winLine[i]).ArrayToWorld();
+						playerWin[myID] = true; break;
+					}
+				CONTINUE_LOOP_AXE:;
+				}
+			}
+			else
+			{
+				// Hủy nước đã đi, hủy win.
+				foreach (var key in playerWin.Keys) playerWin[key] = false;
+				array[p.x][p.y].Recycle();
+				array[p.x][p.y] = null;
+			}
 		}
 	}
 }

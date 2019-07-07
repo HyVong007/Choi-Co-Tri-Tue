@@ -8,6 +8,7 @@ namespace IQChess
 	/// <summary>Lớp con phải thông báo sẵn sàng chơi.</summary>
 	public abstract class TurnManagerBase<I, P> : MonoBehaviour, ISender where I : Enum where P : PlayerBase<I, P>
 	{
+		#region KHỞI TẠO
 		[Serializable]
 		public class Config
 		{
@@ -41,13 +42,14 @@ namespace IQChess
 		{
 			instance = null;
 		}
+		#endregion
 
 
-		//  =================================================
-
-
-		public virtual int turn { get; protected set; } = -1;
-
+		#region [ABSTRACT/ VIRTUAL] CHỨC NĂNG CHÍNH VÀ SỰ KIỆN TURNBASE
+		/// <summary>
+		/// Phải gọi: nextPlayer.MoveNext()
+		/// </summary>
+		public abstract int turn { get; protected set; }
 
 		protected readonly IEnumerator<P> nextPlayer = NextPlayer();
 
@@ -70,11 +72,6 @@ namespace IQChess
 
 		public abstract bool IsPlayerTimeOver(P player);
 
-		/// <summary>
-		/// Phải gọi: nextPlayer.MoveNext()
-		/// </summary>
-		public abstract void BeginTurn();
-
 		public abstract void Play(params Vector3Int[] data);
 
 		public abstract void QuitTurn();
@@ -84,5 +81,6 @@ namespace IQChess
 		public abstract void Request(RequestEvent ev);
 
 		public abstract void Surrender();
+		#endregion
 	}
 }

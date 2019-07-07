@@ -7,6 +7,7 @@ namespace IQChess.GoChess
 {
 	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board, Player>
 	{
+		#region KHỞI TẠO
 		[Serializable]
 		public new sealed class Config : BoardBase<Player.IDType, ChessPiece, Board, Player>.Config
 		{
@@ -27,39 +28,33 @@ namespace IQChess.GoChess
 			[Player.IDType.BLACK] = new List<ChessPiece.Land>(),
 			[Player.IDType.WHITE] = new List<ChessPiece.Land>()
 		};
+		#endregion
 
 
-		//  =========================================================================
-
-
-		public bool CanPlay(Player.IDType playerID, Vector3Int pos)
+		#region SAVE/ LOAD
+		public override string SaveToJson()
 		{
-			if (array[pos.x][pos.y]) return false;
-
-			var lands = new Dictionary<Player.IDType, Dictionary<ChessPiece.Land, int>>()
-			{
-				[Player.IDType.BLACK] = new Dictionary<ChessPiece.Land, int>(),
-				[Player.IDType.WHITE] = new Dictionary<ChessPiece.Land, int>()
-			};
-			foreach (var direction in directions)
-			{
-				var p = pos + direction;
-				if (!p.IsValidArray()) goto CONTINUE_LOOP_DIRECTIONS;
-				var c = array[p.x][p.y];
-				if (!c) return true;
-
-				if (!lands[c.playerID].ContainsKey(c.land)) lands[c.playerID][c.land] = 1;
-				else ++lands[c.playerID][c.land];
-				CONTINUE_LOOP_DIRECTIONS:;
-			}
-
-			foreach (var kvp in lands)
-				foreach (var kvpValue in kvp.Value)
-					if ((kvp.Key == playerID && kvpValue.Key.airHole > kvpValue.Value) || (kvp.Key != playerID && kvpValue.Key.airHole == kvpValue.Value)) return true;
-			return false;
+			throw new NotImplementedException();
 		}
 
+		public override byte[] SaveToStream()
+		{
+			throw new NotImplementedException();
+		}
 
+		public override void Load(string json)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void Load(byte[] stream)
+		{
+			throw new NotImplementedException();
+		}
+		#endregion
+
+
+		#region DO/ UNDO ACTION
 		private struct State
 		{
 			public int emptyHole;
@@ -107,6 +102,7 @@ namespace IQChess.GoChess
 		/// </summary>
 		protected override void _Play(ref ActionData data, bool undo = false)
 		{
+			if (chessPieceCount.Count != 0) chessPieceCount.Clear();
 			var centerPos = data.pos[0];
 			var enemyID = data.playerID == Player.IDType.BLACK ? Player.IDType.WHITE : Player.IDType.BLACK;
 			var state = (State)(data.customData != null ? data.customData : data.customData = State.Create(this, data.playerID, centerPos));
@@ -176,25 +172,52 @@ namespace IQChess.GoChess
 				}
 			}
 		}
+		#endregion
 
-		public override string SaveToJson()
+
+		public bool CanPlay(Player.IDType playerID, Vector3Int pos)
 		{
-			throw new NotImplementedException();
+			if (array[pos.x][pos.y]) return false;
+
+			var lands = new Dictionary<Player.IDType, Dictionary<ChessPiece.Land, int>>()
+			{
+				[Player.IDType.BLACK] = new Dictionary<ChessPiece.Land, int>(),
+				[Player.IDType.WHITE] = new Dictionary<ChessPiece.Land, int>()
+			};
+			foreach (var direction in directions)
+			{
+				var p = pos + direction;
+				if (!p.IsValidArray()) goto CONTINUE_LOOP_DIRECTIONS;
+				var c = array[p.x][p.y];
+				if (!c) return true;
+
+				if (!lands[c.playerID].ContainsKey(c.land)) lands[c.playerID][c.land] = 1;
+				else ++lands[c.playerID][c.land];
+				CONTINUE_LOOP_DIRECTIONS:;
+			}
+
+			foreach (var kvp in lands)
+				foreach (var kvpValue in kvp.Value)
+					if ((kvp.Key == playerID && kvpValue.Key.airHole > kvpValue.Value) || (kvp.Key != playerID && kvpValue.Key.airHole == kvpValue.Value)) return true;
+			return false;
 		}
 
-		public override byte[] SaveToStream()
-		{
-			throw new NotImplementedException();
-		}
 
-		public override void Load(string json)
-		{
-			throw new NotImplementedException();
-		}
+		/// <summary>
+		/// Nếu có action (Do/Undo) thì phải Clear.
+		/// </summary>
+		private readonly Dictionary<Player.IDType, int> chessPieceCount = new Dictionary<Player.IDType, int>();
 
-		public override void Load(byte[] stream)
+		public override bool IsWin(Player.IDType playerID)
 		{
-			throw new NotImplementedException();
+			foreach (var key in lands.Keys)
+				if (!chessPieceCount.ContainsKey(key))
+				{
+					int c = 0;
+					foreach (var land in lands[key]) c += land.positions.Count;
+					chessPieceCount[key] = c;
+				}
+			return chessPieceCount[playerID] > chessPieceCount[1 - playerID];
 		}
 	}
 }

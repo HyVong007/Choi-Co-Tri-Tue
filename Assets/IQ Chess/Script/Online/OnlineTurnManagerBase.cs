@@ -35,6 +35,7 @@ namespace IQChess.Online
 		}
 		#endregion
 
+
 		#region MonoBehaviourPunCallbacks
 		public virtual void OnEnable()
 		{
@@ -333,27 +334,14 @@ namespace IQChess.Online
 		#endregion
 
 
-		//  ======================================================================================
-
-
-
-
-
-
-
-
-		//public override int turn { get => base.turn; protected set => base.turn = value; }
+		#region CHỨC NĂNG VÀ EVENT CHÍNH
+		public override int turn { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
 
 		public override float elapsedTurnTime => throw new NotImplementedException();
 
 		public override float remainTurnTime => throw new NotImplementedException();
 
 		public override bool isTurnTimeOver => throw new NotImplementedException();
-
-		public override void BeginTurn()
-		{
-			throw new NotImplementedException();
-		}
 
 		public override float ElapsePlayerTime(P player)
 		{
@@ -394,5 +382,6 @@ namespace IQChess.Online
 		{
 			throw new NotImplementedException();
 		}
+		#endregion
 	}
 }

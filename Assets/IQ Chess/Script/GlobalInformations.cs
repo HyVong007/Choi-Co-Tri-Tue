@@ -14,10 +14,6 @@ namespace IQChess
 		public static readonly List<Type> initializedTypes = new List<Type>();
 		public static readonly List<object> allConfigs = new List<object>();
 
-		/// <summary>
-		/// Chưa biết Offline hay Online !
-		/// </summary>
-		public static MonoBehaviour turnManager;
 
 
 		public static void Reset()
@@ -33,16 +29,25 @@ namespace IQChess
 		/// <param name="types"></param>
 		public static async void WaitForTypesInitialized(Action callback, params Type[] types)
 		{
+			var unchecks = new List<Type>(types);
+			var tmp = new List<Type>();
 			while (true)
 			{
-				foreach (var pattern in types)
+				foreach (var pattern in unchecks)
 				{
-					foreach (var current in initializedTypes) if (current == pattern || current.IsSubclassOf(pattern)) goto CONTINUE_LOOP_PATTERN;
-					goto CONTINUE_WHILE_TRUE;
-				CONTINUE_LOOP_PATTERN:;
+					foreach (var current in initializedTypes) if (current == pattern || current.IsSubclassOf(pattern))
+						{
+							tmp.Add(pattern);
+							goto CHECK_OTHER_PATTERN;
+						}
+
+					foreach (var t in tmp) unchecks.Remove(t);
+					tmp.Clear();
+					await Task.Delay(1); goto CONTINUE;
+				CHECK_OTHER_PATTERN:;
 				}
 				break;
-			CONTINUE_WHILE_TRUE: await Task.Delay(1);
+			CONTINUE:;
 			}
 			callback();
 		}

@@ -8,5 +8,9 @@ namespace IQChess.ChineseChess
 	/// </summary>
 	public sealed class OfflineTurnManager : OfflineTurnManagerBase<Player.IDType, Player, OfflineTurnManager, Board, ChessPiece>
 	{
+		private void Start()
+		{
+			GlobalInformations.WaitForTypesInitialized(() => ++turn, typeof(Board), typeof(Player), typeof(GameManager));
+		}
 	}
 }

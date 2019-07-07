@@ -70,7 +70,7 @@ namespace IQChess.Gomoku
 
 		public override void OnGameEnd(int turn, EndGameEvent ev, Player winner = null)
 		{
-			throw new System.NotImplementedException();
+			print($"Player {winner.ID} win !");
 		}
 
 

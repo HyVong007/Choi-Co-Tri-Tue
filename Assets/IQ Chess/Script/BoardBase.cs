@@ -11,6 +11,7 @@ namespace IQChess
 	/// <exception cref="TooManyInstanceException"></exception>
 	public abstract class BoardBase<I, C, B, P> : MonoBehaviour, IStorable where I : Enum where C : ChessPieceBase<I> where B : BoardBase<I, C, B, P> where P : PlayerBase<I, P>
 	{
+		#region KHỞI TẠO
 		public const int MAX_STEP = 100;
 
 		[Serializable]
@@ -24,7 +25,6 @@ namespace IQChess
 
 		public static B instance { get; private set; }
 		protected C[][] array;
-		protected readonly Dictionary<I, bool> playerVictoryStates = new Dictionary<I, bool>();
 
 
 		//  =========================================================================
@@ -40,13 +40,6 @@ namespace IQChess
 			for (int x = 0; x < array.Length; ++x) array[x] = new C[c.arraySize.y];
 			Conversion.origin = new Vector3(-array.Length / 2f, -array[0].Length / 2f, 0);
 			Conversion.arraySize = c.arraySize;
-			foreach (I id in Enum.GetValues(typeof(I))) playerVictoryStates[id] = false;
-		}
-
-
-		protected void Start()
-		{
-			GlobalInformations.initializedTypes.Add(GetType());
 		}
 
 
@@ -54,13 +47,19 @@ namespace IQChess
 		{
 			instance = null;
 		}
+		#endregion
 
 
-		//  =====================  Chức năng chính của bàn cờ  ==============================
+		#region SAVE/ LOAD
+		public abstract string SaveToJson();
+
+		public abstract byte[] SaveToStream();
+		public abstract void Load(string json);
+		public abstract void Load(byte[] stream);
+		#endregion
 
 
-		public C this[int x, int y] => array[x][y];
-
+		#region UNDO/ REDO
 		[Serializable]
 		protected struct ActionData
 		{
@@ -70,26 +69,9 @@ namespace IQChess
 			public object customData;
 		}
 
-
-		public bool IsWin(I playerID) => playerVictoryStates[playerID];
-
-		protected abstract void _Play(ref ActionData data, bool undo = false);
 		protected readonly LinkedList<ActionData> recentActions = new LinkedList<ActionData>();
 		protected readonly LinkedList<ActionData> undoneActions = new LinkedList<ActionData>();
 		private int turn;
-
-
-		public void Play(I playerID, params Vector3Int[] pos)
-		{
-			var data = new ActionData() { turn = turn++, playerID = playerID, pos = pos };
-			_Play(ref data);
-			recentActions.AddLast(data);
-			if (recentActions.Count > MAX_STEP)
-			{
-				if (recentActions.First.Value.turn == undoneActions.Last?.Value.turn) undoneActions.RemoveLast();
-				recentActions.RemoveFirst();
-			}
-		}
 
 
 		public bool CanUndo(I playerID)
@@ -151,23 +133,42 @@ namespace IQChess
 				recentActions.AddLast(nodeUndo);
 			} while (id.CompareTo(playerID) != 0);
 		}
+		#endregion
 
-		/// <summary>
-		/// Sự kiện khi game kết thúc: có người thắng hay Hòa.
-		/// parameter: người chơi thắng. Nếu null: Hòa.
-		/// </summary>
-		public static event Action<P> endGame
+
+		#region KIỂM TRA WIN
+		public abstract bool IsWin(I playerID);
+
+		private readonly I[] PLAYER_ID_CONSTANTS = Enum.GetValues(typeof(I)) as I[];
+
+		public bool hasWin
 		{
-			add { _endGame += value; }
-			remove { _endGame -= value; }
+			get
+			{
+				foreach (I id in PLAYER_ID_CONSTANTS) if (IsWin(id)) return true;
+				return false;
+			}
 		}
-		protected static Action<P> _endGame;
+		#endregion
 
-		public abstract string SaveToJson();
 
-		public abstract byte[] SaveToStream();
-		public abstract void Load(string json);
-		public abstract void Load(byte[] stream);
+		public C this[int x, int y] => array[x][y];
+
+
+		public void Play(I playerID, params Vector3Int[] pos)
+		{
+			var data = new ActionData() { turn = turn++, playerID = playerID, pos = pos };
+			_Play(ref data);
+			recentActions.AddLast(data);
+			if (recentActions.Count > MAX_STEP)
+			{
+				if (recentActions.First.Value.turn == undoneActions.Last?.Value.turn) undoneActions.RemoveLast();
+				recentActions.RemoveFirst();
+			}
+		}
+
+
+		protected abstract void _Play(ref ActionData data, bool undo = false);
 	}
 
 

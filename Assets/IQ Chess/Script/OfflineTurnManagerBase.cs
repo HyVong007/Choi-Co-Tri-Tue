@@ -9,8 +9,42 @@ namespace IQChess
 	/// <exception cref="TooManyInstanceException"></exception>
 	public abstract class OfflineTurnManagerBase<I, P, T, B, C> : TurnManagerBase<I, P> where I : Enum where P : PlayerBase<I, P> where T : OfflineTurnManagerBase<I, P, T, B, C> where B : BoardBase<I, C, B, P> where C : ChessPieceBase<I>
 	{
+		#region KHỞI TẠO
 		protected float startTurnTime;
 		protected readonly Dictionary<I, float> startPlayerTime = new Dictionary<I, float>(), elapsedPlayerTime = new Dictionary<I, float>();
+
+
+
+		protected new void Awake()
+		{
+			base.Awake();
+			foreach (I id in Enum.GetValues(typeof(I))) startPlayerTime[id] = elapsedPlayerTime[id] = 0;
+		}
+		#endregion
+
+
+		#region XỬ LÝ TURNBASE EVENTS VÀ CHỨC NĂNG CƠ BẢN
+		private int _turn = -1;
+
+		public override int turn
+		{
+			get => _turn;
+			protected set
+			{
+				_turn = value;
+				nextPlayer.MoveNext();
+				startTurnTime = Time.time;
+				startPlayerTime[player.ID] = Time.time - elapsedPlayerTime[player.ID];
+				freezeTime = true;
+				if (GameManager.debug)
+				{
+					print($"Turn= {turn}: OnTurnBegin()");
+				}
+
+				foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnTurnBegin(turn);
+			}
+		}
+
 
 		public override float elapsedTurnTime => Time.time - startTurnTime;
 
@@ -23,32 +57,6 @@ namespace IQChess
 		public override float RemainPlayerTime(P player) => Mathf.Clamp(maxPlayerTime - elapsedPlayerTime[player.ID], 0, maxPlayerTime);
 
 		public override bool IsPlayerTimeOver(P player) => RemainPlayerTime(player) == 0;
-
-
-		//  ===========================================================================
-
-
-		protected new void Awake()
-		{
-			base.Awake();
-			foreach (I id in Enum.GetValues(typeof(I))) startPlayerTime[id] = elapsedPlayerTime[id] = 0;
-		}
-
-
-		public override void BeginTurn()
-		{
-			++turn;
-			nextPlayer.MoveNext();
-			startTurnTime = Time.time;
-			startPlayerTime[player.ID] = Time.time - elapsedPlayerTime[player.ID];
-			freezeTime = true;
-			if (GameManager.debug)
-			{
-				print($"Turn= {turn}: OnTurnBegin()");
-			}
-
-			foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnTurnBegin(turn);
-		}
 
 
 		public override void Play(params Vector3Int[] data)
@@ -107,7 +115,7 @@ namespace IQChess
 					{
 						reportCount[ReportEvent.DONE_TURN_QUIT] = 0;
 						freezeTime = false;
-						BeginTurn();
+						++turn;
 					}
 					break;
 
@@ -115,10 +123,8 @@ namespace IQChess
 					if (++reportCount[ReportEvent.DONE_PLAYER_PLAYED] == PlayerBase<I, P>.playerDict.Count)
 					{
 						reportCount[ReportEvent.DONE_PLAYER_PLAYED] = 0;
-						//var array = new Vector3Int[data.Length];
-						//Array.Copy(data, array, data.Length);
-						//if (BoardBase<I, C, B, P>.instance.IsWin(player.ID)) foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnGameEnd(turn, EndGameEvent.WIN, player);
-						BeginTurn();
+						if (BoardBase<I, C, B, P>.instance.hasWin) foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnGameEnd(turn, EndGameEvent.WIN, player);
+						else ++turn;
 					}
 					break;
 
@@ -126,11 +132,18 @@ namespace IQChess
 					if (++reportCount[ReportEvent.DONE_TURN_TIME_OVER] == PlayerBase<I, P>.playerDict.Count)
 					{
 						reportCount[ReportEvent.DONE_TURN_TIME_OVER] = 0;
-						BeginTurn();
+						++turn;
 					}
 					break;
 			}
 		}
+
+
+		public override void Request(RequestEvent ev)
+		{
+			throw new NotImplementedException();
+		}
+		#endregion
 
 
 		protected void Update()
@@ -161,12 +174,6 @@ namespace IQChess
 					foreach (IListener<I, P> listener in PlayerBase<I, P>.playerDict.Values) listener.OnTurnTimeOver(turn);
 				}
 			}
-		}
-
-
-		public override void Request(RequestEvent ev)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

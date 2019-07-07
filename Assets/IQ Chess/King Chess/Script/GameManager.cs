@@ -14,9 +14,7 @@ namespace IQChess.KingChess
 
 		private void Start()
 		{
-			GlobalInformations.WaitForTypesInitialized(
-				OfflineTurnManager.instance.BeginTurn,
-				typeof(Board), typeof(Player), typeof(OfflineTurnManager));
+			GlobalInformations.initializedTypes.Add(GetType());
 		}
 	}
 }

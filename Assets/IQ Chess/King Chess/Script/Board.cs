@@ -47,5 +47,10 @@ namespace IQChess.KingChess
 		{
 			throw new NotImplementedException();
 		}
+
+		public override bool IsWin(Player.IDType playerID)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

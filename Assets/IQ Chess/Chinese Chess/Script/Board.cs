@@ -9,6 +9,7 @@ namespace IQChess.ChineseChess
 {
 	public sealed class Board : BoardBase<Player.IDType, ChessPiece, Board, Player>
 	{
+		#region KHỞI TẠO
 		[Serializable] public sealed class ChessPieceList { public List<ChessPiece> list; }
 		[Serializable] public sealed class Name_PieceList_Dict : sd.SerializableDictionaryBase<ChessPiece.Name, ChessPieceList> { }
 		[Serializable] public sealed class ID_Name_PieceList_Dict : sd.SerializableDictionaryBase<Player.IDType, Name_PieceList_Dict> { }
@@ -24,78 +25,36 @@ namespace IQChess.ChineseChess
 			[Player.IDType.BLUE] = new RectInt(3, 0, 3, 3),
 			[Player.IDType.RED] = new RectInt(3, 7, 3, 3)
 		};
+		#endregion
 
 
-		//  ============================================================================
-
-
-		protected override void _Play(ref ActionData data, bool undo = false)
+		#region SAVE/ LOAD
+		public override string SaveToJson()
 		{
-			var start = data.pos[0];
-			var stop = data.pos[1];
-			if (!undo)
-			{
-				// CHƠI BÌNH THƯỜNG
-				var deadEnemy = (data.customData != null ? data.customData : data.customData = array[stop.x][stop.y]) as ChessPiece;
-				var myPiece = array[start.x][start.y];
-				array[start.x][start.y] = null;
-				array[stop.x][stop.y] = myPiece;
-				var myID = data.playerID;
-				var enemyID = 1 - data.playerID;
-				if (myPiece.visible == false) myPiece.visible = true;
-				Move(myPiece.transform, stop.ArrayToWorld()).ContinueWith((Task task) =>
-				{
-					deadEnemy?.gameObject.SetActive(false);
-					if (deadEnemy?.name == ChessPiece.Name.GENERAL)
-					{
-						// Thắng
-						_endGame?.Invoke(Player.playerDict[myID]);
-						return;
-					}
-
-					if (IsCheckmateState(enemyID, null, null))
-					{
-						// Kiểm tra địch có bị chiếu bí không ? Nếu chiếu bí sẽ kết thúc trò chơi.
-						foreach (var enemyPieceList in pieces[enemyID].Values)
-							foreach (var enemyPiece in enemyPieceList.list)
-								if (enemyPiece.gameObject.activeSelf)
-									foreach (var target in FindAllPossibleTarget(enemyPiece))
-										if (!IsCheckmateState(enemyID, enemyPiece.transform.position.WorldToArray(), target)) goto ENEMY_ALIVE;
-
-						_endGame?.Invoke(Player.playerDict[myID]);
-						return;
-					ENEMY_ALIVE:;
-					}
-					movingCompleted?.Invoke();
-				});
-			}
-			else
-			{
-				// HỦY NƯỚC ĐÃ ĐI
-				var myPiece = array[stop.x][stop.y];
-				array[start.x][start.y] = myPiece;
-				var rebornEnemy = data.customData as ChessPiece;
-				array[stop.x][stop.y] = rebornEnemy;
-				rebornEnemy?.gameObject.SetActive(true);
-				Move(myPiece.transform, start.ArrayToWorld()).ContinueWith((Task task) => movingCompleted?.Invoke());
-			}
+			throw new NotImplementedException();
 		}
 
 
-		public static event Action movingCompleted;
-		private const float moveSpeed = 0.1f;
-
-		private async Task Move(Transform transform, Vector3 stop)
+		public override byte[] SaveToStream()
 		{
-			do
-			{
-				transform.position = Vector3.MoveTowards(transform.position, stop, moveSpeed);
-				await Task.Delay(1);
-			} while (transform.position != stop);
-			transform.position = stop;
+			throw new NotImplementedException();
 		}
 
 
+		public override void Load(string json)
+		{
+			throw new NotImplementedException();
+		}
+
+
+		public override void Load(byte[] stream)
+		{
+			throw new NotImplementedException();
+		}
+		#endregion
+
+
+		#region TÌM CÁC ĐIỂM CÓ THỂ ĐI, KIỂM TRA CHIẾU TƯỚNG
 		public List<Vector3Int> FindTarget(Player.IDType playerID, Vector3Int pos)
 		{
 			var chessPiece = array[pos.x][pos.y];
@@ -157,8 +116,6 @@ namespace IQChess.ChineseChess
 			[new Vector3Int(6, 6, 0)] = ChessPiece.Name.SOLDIER,
 			[new Vector3Int(8, 6, 0)] = ChessPiece.Name.SOLDIER,
 		};
-
-
 
 		private List<Vector3Int> FindAllPossibleTarget(ChessPiece chessPiece)
 		{
@@ -347,29 +304,84 @@ namespace IQChess.ChineseChess
 			}
 			return false;
 		}
+		#endregion
 
 
-		public override string SaveToJson()
+		#region DO/ UNDO ACTION
+		protected override void _Play(ref ActionData data, bool undo = false)
 		{
-			throw new NotImplementedException();
+			var myID = data.playerID;
+			var start = data.pos[0];
+			var stop = data.pos[1];
+			if (!undo)
+			{
+				// CHƠI BÌNH THƯỜNG
+				var deadEnemy = (data.customData != null ? data.customData : data.customData = array[stop.x][stop.y]) as ChessPiece;
+				var myPiece = array[start.x][start.y];
+				array[start.x][start.y] = null;
+				array[stop.x][stop.y] = myPiece;
+				var enemyID = 1 - data.playerID;
+				if (myPiece.visible == false) myPiece.visible = true;
+				Move(myPiece.transform, stop.ArrayToWorld()).ContinueWith((Task task) =>
+				{
+					deadEnemy?.gameObject.SetActive(false);
+					if (deadEnemy?.name == ChessPiece.Name.GENERAL)
+					{
+						playerWin[myID] = true;
+						return;
+					}
+
+					if (IsCheckmateState(enemyID, null, null))
+					{
+						// Kiểm tra địch có bị chiếu bí không ? Nếu chiếu bí sẽ kết thúc trò chơi.
+						foreach (var enemyPieceList in pieces[enemyID].Values)
+							foreach (var enemyPiece in enemyPieceList.list)
+								if (enemyPiece.gameObject.activeSelf)
+									foreach (var target in FindAllPossibleTarget(enemyPiece))
+										if (!IsCheckmateState(enemyID, enemyPiece.transform.position.WorldToArray(), target)) goto ENEMY_ALIVE;
+
+						playerWin[myID] = true;
+						return;
+					ENEMY_ALIVE:;
+					}
+					movingCompleted?.Invoke();
+				});
+			}
+			else
+			{
+				// HỦY NƯỚC ĐÃ ĐI
+				playerWin[myID] = false;
+				var myPiece = array[stop.x][stop.y];
+				array[start.x][start.y] = myPiece;
+				var rebornEnemy = data.customData as ChessPiece;
+				array[stop.x][stop.y] = rebornEnemy;
+				rebornEnemy?.gameObject.SetActive(true);
+				Move(myPiece.transform, start.ArrayToWorld()).ContinueWith((Task task) => movingCompleted?.Invoke());
+			}
 		}
 
 
-		public override byte[] SaveToStream()
+		public static event Action movingCompleted;
+		private const float moveSpeed = 0.1f;
+
+		private async Task Move(Transform transform, Vector3 stop)
 		{
-			throw new NotImplementedException();
+			do
+			{
+				transform.position = Vector3.MoveTowards(transform.position, stop, moveSpeed);
+				await Task.Delay(1);
+			} while (transform.position != stop);
+			transform.position = stop;
 		}
+		#endregion
 
 
-		public override void Load(string json)
+		private readonly Dictionary<Player.IDType, bool> playerWin = new Dictionary<Player.IDType, bool>()
 		{
-			throw new NotImplementedException();
-		}
+			[Player.IDType.BLUE] = false,
+			[Player.IDType.RED] = false
+		};
 
-
-		public override void Load(byte[] stream)
-		{
-			throw new NotImplementedException();
-		}
+		public override bool IsWin(Player.IDType playerID) => playerWin[playerID];
 	}
 }

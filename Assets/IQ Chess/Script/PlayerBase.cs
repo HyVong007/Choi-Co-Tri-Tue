@@ -13,6 +13,7 @@ namespace IQChess
 	[RequireComponent(typeof(SpriteRenderer))]
 	public abstract class PlayerBase<I, P> : MonoBehaviour, IListener<I, P>, IPointerClickHandler where I : Enum where P : PlayerBase<I, P>
 	{
+		#region KHỞI TẠO
 		[Serializable]
 		public class Config
 		{
@@ -81,8 +82,10 @@ namespace IQChess
 		{
 			(playerDict as Dictionary<I, P>).Remove(ID);
 		}
+		#endregion
 
 
+		#region LISTENER EVENTS
 		public abstract void OnTurnBegin(int turn);
 
 		public abstract void OnTurnQuit(int turn);
@@ -96,6 +99,8 @@ namespace IQChess
 		public abstract void OnRequestReceived(int turn, RequestEvent ev, P requester);
 
 		public abstract void OnRequestDenied(int turn, RequestEvent ev);
+		#endregion
+
 
 		public abstract void OnPointerClick(PointerEventData eventData);
 	}
