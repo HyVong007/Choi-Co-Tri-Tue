@@ -9,7 +9,7 @@ using Photon.Realtime;
 namespace IQChess.Online
 {
 	/// <summary>Lớp con phải thông báo sẵn sàng chơi.</summary>
-	public abstract class OnlineTurnManagerBase<I, P, T> : TurnManagerBase<I, P> where I : Enum where P : PlayerBase<I, P> where T : OnlineTurnManagerBase<I, P, T>
+	public abstract class OnlineTurnManagerBase<I, P, T> : TurnManagerBase<I, P>, IConnectionCallbacks, IMatchmakingCallbacks, IInRoomCallbacks, ILobbyCallbacks where I : Enum where P : PlayerBase<I, P> where T : OnlineTurnManagerBase<I, P, T>
 	{
 		#region MonoBehaviourPun
 		/// <summary>Cache field for the PhotonView on this GameObject.</summary>

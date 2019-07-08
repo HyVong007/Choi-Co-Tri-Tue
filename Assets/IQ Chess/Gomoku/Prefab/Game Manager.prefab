@@ -43,7 +43,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51c839f571e79fe439c6f9ca65652673, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offlineTurnPrefab: {fileID: 528364838476806978, guid: 465582c063730e64da1c7d9b635cd8f9,
-    type: 3}
-  onlineTurnPrefab: {fileID: 1742482758692293286, guid: f4ff20a62b4bbaa4a9d4e8edcd000641,
-    type: 3}
+  helper:
+    offlinePrefab: {fileID: 528364838476806978, guid: 465582c063730e64da1c7d9b635cd8f9,
+      type: 3}
+    onlinePrefab: {fileID: 1742482758692293286, guid: f4ff20a62b4bbaa4a9d4e8edcd000641,
+      type: 3}

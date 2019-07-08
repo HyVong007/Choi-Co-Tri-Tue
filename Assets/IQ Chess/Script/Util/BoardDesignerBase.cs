@@ -9,6 +9,7 @@ namespace IQChess.Util
 	[RequireComponent(typeof(SpriteRenderer))]
 	public abstract class BoardDesignerBase<I, B> : MonoBehaviour, IStorable where I : Enum where B : BoardDesignerBase<I, B>
 	{
+		#region KHỞI TẠO
 		protected I[][] array;
 
 		[SerializeField] private SpriteRenderer _spriteRenderer;
@@ -22,6 +23,12 @@ namespace IQChess.Util
 			else throw new TooManyInstanceException("Không thể tạo nhiều hơn 1 Designer !");
 		}
 
+
+		private void OnDestroy()
+		{
+			instance = null;
+		}
+		#endregion
 
 
 		public abstract void Load(string json);

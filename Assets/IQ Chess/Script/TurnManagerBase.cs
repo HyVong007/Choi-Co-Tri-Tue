@@ -51,6 +51,8 @@ namespace IQChess
 		/// </summary>
 		public abstract int turn { get; protected set; }
 
+		public void BeginFirstTurn() => turn = 0;
+
 		protected readonly IEnumerator<P> nextPlayer = NextPlayer();
 
 		private static IEnumerator<P> NextPlayer()
@@ -82,5 +84,15 @@ namespace IQChess
 
 		public abstract void Surrender();
 		#endregion
+	}
+
+
+
+	[Serializable]
+	public struct TurnManagerHelper
+	{
+		[SerializeField] private MonoBehaviour offlinePrefab, onlinePrefab;
+
+		public MonoBehaviour Instantiate(bool isOnline) => UnityEngine.Object.Instantiate(isOnline ? onlinePrefab : offlinePrefab);
 	}
 }

@@ -78,7 +78,7 @@ namespace IQChess.Gomoku
 			data.array = new JsonData.Row[size.x];
 			for (int x = 0; x < size.x; ++x)
 			{
-				data.array[x].items = new JsonData.RowItem[size.y];
+				data.array[x] = new JsonData.Row() { items = new JsonData.RowItem[size.y] };
 				for (int y = 0; y < size.y; ++y)
 				{
 					var chessPiece = array[x][y];
@@ -102,11 +102,8 @@ namespace IQChess.Gomoku
 				for (index.y = 0; index.y < size.y; ++index.y)
 				{
 					var item = data.array[index.x].items[index.y];
-					if (!item.hasPlayerID) continue;
-
-					var chessPiece = ChessPiece.Get(item.playerID);
-					chessPiece.transform.position = index.ArrayToWorld();
-					array[index.x][index.y] = chessPiece;
+					if (item.hasPlayerID)
+						array[index.x][index.y] = ChessPiece.Get(item.playerID, index.ArrayToWorld());
 				}
 			}
 		}
@@ -175,7 +172,7 @@ namespace IQChess.Gomoku
 			else
 			{
 				// Hủy nước đã đi, hủy win.
-				foreach (var key in playerWin.Keys) playerWin[key] = false;
+				foreach (var ID in PLAYER_ID_CONSTANTS) playerWin[ID] = false;
 				array[p.x][p.y].Recycle();
 				array[p.x][p.y] = null;
 			}

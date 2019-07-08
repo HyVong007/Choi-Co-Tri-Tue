@@ -5,14 +5,24 @@ namespace IQChess.ChineseChess
 {
 	public sealed class Player : PlayerBase<Player.IDType, Player>
 	{
+		#region KHỞI TẠO
 		public enum IDType
 		{
 			BLUE, RED
 		}
 
 
+		private new void Start()
+		{
+			base.Start();
+			if (playerDict.Count == 2) GlobalInformations.initializedTypes.Add(GetType());
+		}
+		#endregion
+
+
 		public override void OnTurnBegin(int turn)
 		{
+			canPlay = turnManager.player == this;
 			OfflineTurnManager.instance.Report(ReportEvent.DONE_TURN_BEGIN);
 		}
 

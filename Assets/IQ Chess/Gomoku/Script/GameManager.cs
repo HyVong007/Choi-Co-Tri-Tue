@@ -13,38 +13,32 @@ namespace IQChess.Gomoku
 			public bool isOnline;
 		}
 
-		public static GameManager instance { get; private set; }
-		[SerializeField] private OfflineTurnManager offlineTurnPrefab;
-		[SerializeField] private Online.OnlineTurnManager onlineTurnPrefab;
-
-
-
-		private void Awake()
-		{
-			if (!instance) instance = this;
-			else throw new TooManyInstanceException("Không thể tạo quá 1 Game Manager !");
-
-			var config = Config.instance;
-			if (config.isOnline) Instantiate(onlineTurnPrefab); else Instantiate(offlineTurnPrefab);
-		}
-		#endregion
+		[SerializeField] private TurnManagerHelper helper;
+		private TurnManagerBase<Player.IDType, Player> turnManager;
 
 
 		private void Start()
 		{
+			turnManager = helper.Instantiate(Config.instance.isOnline) as TurnManagerBase<Player.IDType, Player>;
 			GlobalInformations.initializedTypes.Add(GetType());
+			GlobalInformations.WaitForTypesReady(turnManager.BeginFirstTurn, typeof(TurnManagerBase<Player.IDType, Player>), typeof(Board), typeof(Player));
 		}
+		#endregion
 
 
-		private void Update()
-		{
-			if (Input.GetKeyDown(KeyCode.Space))
-			{
-				var b = Board.instance;
-				var id = TurnManagerBase<Player.IDType, Player>.instance.player.ID;
-				print($"Is win [{id}]= " + b.IsWin(id));
-				print("Win line= " + b.winLine[0].WorldToArray() + ", " + b.winLine[1].WorldToArray());
-			}
-		}
+		[IngameDebugConsole.ConsoleMethod("u", "")]
+		public static void Undo(char c) => Board.instance.Undo(c == 'o' ? Player.IDType.O : Player.IDType.X);
+
+		[IngameDebugConsole.ConsoleMethod("r", "")]
+		public static void Redo(char c) => Board.instance.Redo(c == 'o' ? Player.IDType.O : Player.IDType.X);
+
+		[IngameDebugConsole.ConsoleMethod("cu", "")]
+		public static bool CanUndo(char c) => Board.instance.CanUndo(c == 'o' ? Player.IDType.O : Player.IDType.X);
+
+		[IngameDebugConsole.ConsoleMethod("cr", "")]
+		public static bool CanRedo(char c) => Board.instance.CanRedo(c == 'o' ? Player.IDType.O : Player.IDType.X);
+
+		[IngameDebugConsole.ConsoleMethod("s", "")]
+		public static string Save() => Board.instance.SaveToJson();
 	}
 }

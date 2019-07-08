@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8997153550144200886}
   - component: {fileID: 55505573}
   - component: {fileID: 55505575}
-  - component: {fileID: 55505576}
+  - component: {fileID: 623947215991340492}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -117,7 +117,7 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
---- !u!114 &55505576
+--- !u!114 &623947215991340492
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

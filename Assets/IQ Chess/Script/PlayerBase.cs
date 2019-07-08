@@ -10,7 +10,6 @@ namespace IQChess
 	///<para>Lớp con phải thông báo sẵn sàng chơi.</para></summary>
 	/// <typeparam name="I">Kiểu của ID của người chơi.</typeparam>
 	/// <exception cref="TooManyInstanceException"></exception>
-	[RequireComponent(typeof(SpriteRenderer))]
 	public abstract class PlayerBase<I, P> : MonoBehaviour, IListener<I, P>, IPointerClickHandler where I : Enum where P : PlayerBase<I, P>
 	{
 		#region KHỞI TẠO
@@ -51,11 +50,10 @@ namespace IQChess
 		public static readonly Dictionary<I, P> playerDict = new Dictionary<I, P>();
 
 		[SerializeField] private new BoxCollider2D collider;
+
 		private static TurnManagerBase<I, P> _turnManager;
 		protected static TurnManagerBase<I, P> turnManager => _turnManager ? _turnManager : _turnManager = TurnManagerBase<I, P>.instance;
 
-
-		//  =========================================================================
 
 
 		protected void Awake()
@@ -85,7 +83,7 @@ namespace IQChess
 		#endregion
 
 
-		#region LISTENER EVENTS
+		#region LISTENER CALLBACKS
 		public abstract void OnTurnBegin(int turn);
 
 		public abstract void OnTurnQuit(int turn);

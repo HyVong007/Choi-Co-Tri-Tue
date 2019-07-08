@@ -17,7 +17,6 @@ namespace IQChess.GoChess
 			public bool gridCenter = true;
 		}
 
-
 		private static readonly Vector3Int[] directions = new Vector3Int[]
 		{
 			Vector3Int.left, Vector3Int.right, Vector3Int.up, Vector3Int.down
@@ -28,6 +27,31 @@ namespace IQChess.GoChess
 			[Player.IDType.BLACK] = new List<ChessPiece.Land>(),
 			[Player.IDType.WHITE] = new List<ChessPiece.Land>()
 		};
+		[SerializeField] private Transform cellPrefab, boardCells;
+
+
+		private new void Awake()
+		{
+			base.Awake();
+
+			// Vẽ đường kẻ
+			var config = Config.instance as Config;
+			var boardSize = config.gridCenter ? Conversion.arraySize : Conversion.arraySize + Vector2Int.one;
+			var origin = config.gridCenter ? Conversion.origin + Conversion.ZERO_DOT_FIVE : Conversion.origin;
+			var pos = new Vector3();
+			var index = new Vector2Int();
+			for (pos.x = origin.x, index.x = 0; index.x < boardSize.x; ++pos.x, ++index.x)
+				for (pos.y = origin.y, index.y = 0; index.y < boardSize.y; ++pos.y, ++index.y)
+					Instantiate(cellPrefab, boardCells).localPosition = pos;
+
+			// Vẽ hình nền Background
+		}
+
+
+		private void Start()
+		{
+			GlobalInformations.initializedTypes.Add(GetType());
+		}
 		#endregion
 
 
@@ -96,10 +120,6 @@ namespace IQChess.GoChess
 			}
 		}
 
-
-		/// <summary>
-		/// Đánh quân cờ chessPiece vào vị trí pos[0].
-		/// </summary>
 		protected override void _Play(ref ActionData data, bool undo = false)
 		{
 			if (chessPieceCount.Count != 0) chessPieceCount.Clear();
@@ -208,16 +228,26 @@ namespace IQChess.GoChess
 		/// </summary>
 		private readonly Dictionary<Player.IDType, int> chessPieceCount = new Dictionary<Player.IDType, int>();
 
+		public int ChessPieceCount(Player.IDType playerID)
+		{
+			int c = 0;
+			foreach (var land in lands[playerID]) c += land.positions.Count;
+			return c;
+		}
+
+
 		public override bool IsWin(Player.IDType playerID)
 		{
-			foreach (var key in lands.Keys)
+			/*foreach (var key in lands.Keys)
 				if (!chessPieceCount.ContainsKey(key))
 				{
 					int c = 0;
 					foreach (var land in lands[key]) c += land.positions.Count;
 					chessPieceCount[key] = c;
 				}
-			return chessPieceCount[playerID] > chessPieceCount[1 - playerID];
+			return chessPieceCount[playerID] > chessPieceCount[1 - playerID];*/
+
+			return false;
 		}
 	}
 }

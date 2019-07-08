@@ -28,23 +28,23 @@ namespace IQChess.Gomoku
 		}
 		#endregion
 
+		#region KHỞI TẠO
 		public enum IDType
 		{
 			O, X
 		}
-
-
 
 		private new void Start()
 		{
 			base.Start();
 			if (playerDict.Count == 2) GlobalInformations.initializedTypes.Add(GetType());
 		}
+		#endregion
 
 
 		public override void OnTurnBegin(int turn)
 		{
-			canPlay = turnManager.player == this ? true : false;
+			canPlay = turnManager.player == this;
 			turnManager.Report(ReportEvent.DONE_TURN_BEGIN);
 		}
 
@@ -88,7 +88,6 @@ namespace IQChess.Gomoku
 
 		public override void OnPointerClick(PointerEventData eventData)
 		{
-			if (!canPlay) return;
 			var pos = Input.mousePosition.ScreenToArray();
 			if (!Board.instance[pos.x, pos.y])
 			{

@@ -8,6 +8,7 @@ namespace IQChess.Util
 {
 	public sealed class CameraController : MonoBehaviour
 	{
+		#region KHỞI TẠO
 		public bool lockCamera;
 		[SerializeField] private new Camera camera;
 
@@ -110,6 +111,13 @@ namespace IQChess.Util
 			camRig.transform.position = new Vector3(0, 0, -10);
 			Screen.orientation = ScreenOrientation.AutoRotation;
 		}
+
+
+		private void OnDestroy()
+		{
+			instance = null;
+		}
+		#endregion
 
 
 		private int runningCount;

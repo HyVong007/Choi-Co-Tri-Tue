@@ -66,12 +66,14 @@
     <Compile Include="Assets\IQ Chess\Chinese Chess\Script\ChessPiece.cs" />
     <Compile Include="Assets\IQ Chess\Chinese Chess\Script\GameManager.cs" />
     <Compile Include="Assets\IQ Chess\Chinese Chess\Script\OfflineTurnManager.cs" />
+    <Compile Include="Assets\IQ Chess\Chinese Chess\Script\Online\OnlineTurnManager.cs" />
     <Compile Include="Assets\IQ Chess\Chinese Chess\Script\Player.cs" />
     <Compile Include="Assets\IQ Chess\Chinese Chess\Script\Util\BoardDesigner.cs" />
     <Compile Include="Assets\IQ Chess\Go Chess\Script\Board.cs" />
     <Compile Include="Assets\IQ Chess\Go Chess\Script\ChessPiece.cs" />
     <Compile Include="Assets\IQ Chess\Go Chess\Script\GameManager.cs" />
     <Compile Include="Assets\IQ Chess\Go Chess\Script\OfflineTurnManager.cs" />
+    <Compile Include="Assets\IQ Chess\Go Chess\Script\Online\OnlineTurnManager.cs" />
     <Compile Include="Assets\IQ Chess\Go Chess\Script\Player.cs" />
     <Compile Include="Assets\IQ Chess\Go Chess\Script\Util\BoardDesigner.cs" />
     <Compile Include="Assets\IQ Chess\Gomoku\Script\Board.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="Assets\IQ Chess\King Chess\Script\ChessPiece.cs" />
     <Compile Include="Assets\IQ Chess\King Chess\Script\GameManager.cs" />
     <Compile Include="Assets\IQ Chess\King Chess\Script\OfflineTurnManager.cs" />
+    <Compile Include="Assets\IQ Chess\King Chess\Script\Online\OnlineTurnManager.cs" />
     <Compile Include="Assets\IQ Chess\King Chess\Script\Player.cs" />
     <Compile Include="Assets\IQ Chess\King Chess\Script\Util\BoardDesigner.cs" />
     <Compile Include="Assets\IQ Chess\Script\BoardBase.cs" />
@@ -106,8 +109,8 @@
     <Compile Include="Assets\Rotary Heart\SerializableDictionary\References\RequiredReferences.cs" />
     <Compile Include="Assets\Rotary Heart\SerializableDictionary\ReorderableList\ReorderableList.cs" />
     <Compile Include="Assets\Rotary Heart\SerializableDictionary\SerializableDictionaryBase.cs" />
-    <Compile Include="Assets\TEST\ConfigGenerator.cs" />
-    <Compile Include="Assets\TEST\Gomoku\Test.cs" />
+    <Compile Include="Assets\TEST\Go Chess\ConfigGenerator.cs" />
+    <Compile Include="Assets\TEST\Gomoku\ConfigGenerator.cs" />
     <Compile Include="Assets\TEST\TestGame.cs" />
     <None Include="Assets\Photon\PhotonUnityNetworking\link.xml" />
     <None Include="Assets\Photon\PhotonLibs\Photon3Unity3D.xml" />

@@ -13,7 +13,7 @@ namespace IQChess.Gomoku
 
 		private void Start()
 		{
-			GlobalInformations.WaitForTypesInitialized(() => ++turn, typeof(Board), typeof(Player), typeof(GameManager));
+			GlobalInformations.initializedTypes.Add(GetType());
 		}
 	}
 }

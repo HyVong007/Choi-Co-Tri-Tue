@@ -6,6 +6,7 @@ namespace IQChess.GoChess
 {
 	public sealed class ChessPiece : ChessPieceBase<Player.IDType>
 	{
+		#region KHỞI TẠO
 		public sealed class Land
 		{
 			public int airHole;
@@ -29,7 +30,7 @@ namespace IQChess.GoChess
 			[Player.IDType.BLACK] = new Stack<ChessPiece>(),
 			[Player.IDType.WHITE] = new Stack<ChessPiece>()
 		};
-
+		#endregion
 
 
 		public static ChessPiece Get(Player.IDType playerID)

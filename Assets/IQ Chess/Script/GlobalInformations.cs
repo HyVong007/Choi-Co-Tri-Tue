@@ -27,7 +27,7 @@ namespace IQChess
 		/// </summary>
 		/// <param name="callback"></param>
 		/// <param name="types"></param>
-		public static async void WaitForTypesInitialized(Action callback, params Type[] types)
+		public static async void WaitForTypesReady(Action callback, params Type[] types)
 		{
 			var unchecks = new List<Type>(types);
 			var tmp = new List<Type>();

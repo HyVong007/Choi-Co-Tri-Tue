@@ -12,7 +12,7 @@ namespace IQChess
 	public abstract class BoardBase<I, C, B, P> : MonoBehaviour, IStorable where I : Enum where C : ChessPieceBase<I> where B : BoardBase<I, C, B, P> where P : PlayerBase<I, P>
 	{
 		#region KHỞI TẠO
-		public const int MAX_STEP = 100;
+		public const int MAX_STEP = int.MaxValue;
 
 		[Serializable]
 		public class Config
@@ -20,14 +20,12 @@ namespace IQChess
 			public static Config instance;
 			public Vector2Int arraySize;
 			public string json = "";
-			public byte[] stream;
+			public byte[] stream = null;
 		}
 
 		public static B instance { get; private set; }
 		protected C[][] array;
 
-
-		//  =========================================================================
 
 
 		protected void Awake()
@@ -36,10 +34,15 @@ namespace IQChess
 			else throw new TooManyInstanceException("Không thể tạo nhiều hơn 1 BoardBase !");
 
 			var c = Config.instance;
-			array = new C[c.arraySize.x][];
-			for (int x = 0; x < array.Length; ++x) array[x] = new C[c.arraySize.y];
-			Conversion.origin = new Vector3(-array.Length / 2f, -array[0].Length / 2f, 0);
 			Conversion.arraySize = c.arraySize;
+			Conversion.origin = new Vector3(-c.arraySize.x / 2f, -c.arraySize.y / 2f, 0);
+			if (c.json != "") Load(c.json);
+			else if (c.stream != null) Load(c.stream);
+			else
+			{
+				array = new C[c.arraySize.x][];
+				for (int x = 0; x < array.Length; ++x) array[x] = new C[c.arraySize.y];
+			}
 		}
 
 
@@ -52,7 +55,6 @@ namespace IQChess
 
 		#region SAVE/ LOAD
 		public abstract string SaveToJson();
-
 		public abstract byte[] SaveToStream();
 		public abstract void Load(string json);
 		public abstract void Load(byte[] stream);
@@ -69,8 +71,7 @@ namespace IQChess
 			public object customData;
 		}
 
-		protected readonly LinkedList<ActionData> recentActions = new LinkedList<ActionData>();
-		protected readonly LinkedList<ActionData> undoneActions = new LinkedList<ActionData>();
+		private readonly LinkedList<ActionData> recentActions = new LinkedList<ActionData>(), undoneActions = new LinkedList<ActionData>();
 		private int turn;
 
 
@@ -124,8 +125,8 @@ namespace IQChess
 				int order = nodeUndo.Value.turn - 1;
 				while (recentActions.Count != 0)
 				{
-					if (recentActions.Last.Value.turn == order) break;
 					var value = recentActions.Last.Value;
+					if (value.turn == order) break;
 					_Play(ref value, undo: true);
 					recentActions.RemoveLast();
 				}
@@ -139,7 +140,7 @@ namespace IQChess
 		#region KIỂM TRA WIN
 		public abstract bool IsWin(I playerID);
 
-		private readonly I[] PLAYER_ID_CONSTANTS = Enum.GetValues(typeof(I)) as I[];
+		protected readonly I[] PLAYER_ID_CONSTANTS = Enum.GetValues(typeof(I)) as I[];
 
 		public bool hasWin
 		{
